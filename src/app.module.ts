@@ -4,6 +4,10 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DocumentsModule } from './documents/documents.module';
+import { CategoriesController } from './categories/categories.controller';
+import { CategoriesService } from './categories/categories.service';
+import { CategoriesModule } from './categories/categories.module';
+import { CategoriesTreeModule } from './categories_tree/categories_tree.module';
 
 @Module({
   imports: [
@@ -19,8 +23,10 @@ import { DocumentsModule } from './documents/documents.module';
     }),
     UsersModule,
     DocumentsModule,
+    CategoriesModule,
+    CategoriesTreeModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, CategoriesController],
+  providers: [AppService, CategoriesService],
 })
 export class AppModule {}

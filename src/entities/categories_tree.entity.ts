@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { Category } from "src/entities/categories.entity";
 
 @Entity({name: 'categories_tree'})
@@ -10,9 +10,9 @@ export class CategoryTree{
 
     @ManyToOne(() => Category, { eager: true })
     @JoinColumn({name: 'father', referencedColumnName: 'id'})
-    father: Category
+    father: number
 
     @ManyToOne(() => Category, { eager: true })
     @JoinColumn({name: 'id_category', referencedColumnName: 'id'})
-    id_category: Category
+    id_category: number
 }

@@ -5,7 +5,7 @@ export class Category {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({length: 50, nullable: false})
+  @Column({length: 50, nullable: false, unique: true})
   name: string
 
   @Column({length: 25, nullable: false})
