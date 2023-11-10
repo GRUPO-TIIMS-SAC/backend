@@ -8,6 +8,9 @@ import { CategoriesController } from './categories/categories.controller';
 import { CategoriesService } from './categories/categories.service';
 import { CategoriesModule } from './categories/categories.module';
 import { CategoriesTreeModule } from './categories_tree/categories_tree.module';
+import { CompaniesModule } from './companies/companies.module';
+import { FieldsModule } from './fields/fields.module';
+import { SpecialistsJobModule } from './specialists_job/specialists_job.module';
 
 @Module({
   imports: [
@@ -25,8 +28,11 @@ import { CategoriesTreeModule } from './categories_tree/categories_tree.module';
     DocumentsModule,
     CategoriesModule,
     CategoriesTreeModule,
+    CompaniesModule,
+    FieldsModule,
+    SpecialistsJobModule,
   ],
-  controllers: [AppController, CategoriesController],
-  providers: [AppService, CategoriesService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

@@ -31,7 +31,7 @@ export class Company {
   ruc: string
 
   @JoinColumn({ name: 'field', referencedColumnName: 'id' })
-  field: Field
+  field: number
 
   @Column({ length: 500})
   profile_photo: string
