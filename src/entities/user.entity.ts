@@ -14,8 +14,8 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 50, nullable: false })
-  nickname: string;
+  @Column()
+  id_auth: number;
 
   @Column({ length: 250, nullable: false })
   name: string;
@@ -38,9 +38,9 @@ export class User {
   @Column({ length: 25, nullable: false })
   district: string;
 
-  @ManyToOne(() => Document, (document) => document.id)
+  @ManyToOne(() => Document, (document) => document.id, {eager: true})
   @JoinColumn({ name: 'identity_document', referencedColumnName: 'id' })
-  identity_document: Document;
+  identity_document: number;
  
   @Column({ length: 25, nullable: false })
   number_document: string;

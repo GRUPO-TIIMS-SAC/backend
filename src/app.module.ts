@@ -11,19 +11,24 @@ import { CategoriesTreeModule } from './categories_tree/categories_tree.module';
 import { CompaniesModule } from './companies/companies.module';
 import { FieldsModule } from './fields/fields.module';
 import { SpecialistsJobModule } from './specialists_job/specialists_job.module';
+import { SpecialistsModule } from './specialists/specialists.module';
+import { UnitsModule } from './units/units.module';
+import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
+      host: 'tiims.com.pe',
       port: 3306,
-      username: 'root',
-      password: '',
-      database: 'db_tiims',
+      username: 'tiimscom_cxg',
+      password: '(.,gR1G0RK)2308',
+      database: 'tiimscom_new_db',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
+    ConfigModule.forRoot(),
     UsersModule,
     DocumentsModule,
     CategoriesModule,
@@ -31,6 +36,9 @@ import { SpecialistsJobModule } from './specialists_job/specialists_job.module';
     CompaniesModule,
     FieldsModule,
     SpecialistsJobModule,
+    SpecialistsModule,
+    UnitsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

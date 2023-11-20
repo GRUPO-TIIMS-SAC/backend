@@ -1,5 +1,5 @@
-import { Field } from 'mysql2';
-import { Column, Entity, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Field } from './fields.entity';
 
 @Entity({ name: 'companies' })
 export class Company {
@@ -30,6 +30,7 @@ export class Company {
   @Column({ length: 25, nullable: false, unique: true})
   ruc: string
 
+  @ManyToOne(() => Field, { eager: true })
   @JoinColumn({ name: 'field', referencedColumnName: 'id' })
   field: number
 
