@@ -7,7 +7,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
-    constructor(
+    /* constructor(
         @InjectRepository(User)
         private readonly usersRepository: Repository<User>
     ){}
@@ -70,5 +70,5 @@ export class UsersService {
 
         const updateUser = Object.assign(userFound, user);
         return this.usersRepository.save(updateUser);
-    }
+    } */
 }
