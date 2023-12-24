@@ -1,16 +1,17 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity({ name: 'units' })
-export class Unit {
+@Entity({ name: 'specialities' })
+export class Speciality {
+
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({length: 25 ,nullable: false})
-    unit: string;
+    @Column({nullable: false})
+    name: string;
 
     @Column({nullable: false})
-    min_amount: number;
+    img: string;
 
     @Column({nullable: false})
-    max_amount: number;
+    created_at: Date;
 }
