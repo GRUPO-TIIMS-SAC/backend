@@ -3,13 +3,18 @@ import {
   PrimaryGeneratedColumn,
   Column,
   Unique,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { AuthMethod } from './auth_methods.entity';
 
 @Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @ManyToOne(() => AuthMethod, (auth_method) => auth_method.id)
+  @JoinColumn({ name: 'auth_method_id' })
   @Column()
   auth_method_id: number;
 
@@ -21,6 +26,9 @@ export class User {
 
   @Column({ length: 250, nullable: false })
   password: string;
+
+  @Column({nullable: false, default: false})
+  clean_free: boolean;
 
   @Column()
   created_at: Date;

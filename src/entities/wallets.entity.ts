@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "./user.entity";
 
 @Entity({ name: 'wallets' })
 export class Wallet {
@@ -6,6 +7,8 @@ export class Wallet {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @OneToOne(() => User, user => user.id)
+    @JoinColumn({name: 'user_id'})
     @Column({nullable: false})
     user_id: number;
 
