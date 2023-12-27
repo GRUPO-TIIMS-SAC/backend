@@ -7,6 +7,7 @@ import { AuthMethod } from 'src/entities/auth_methods.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([AuthMethod])],
   providers: [AuthMethodsService],
-  controllers: [AuthMethodsController]
+  controllers: [AuthMethodsController],
+  exports: [AuthMethodsService]
 })
 export class AuthMethodsModule {}

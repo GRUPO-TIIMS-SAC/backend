@@ -31,6 +31,20 @@ export class AuthMethodsService {
         return this.authMethodsRepository.find();
     }
 
+    async getOneAuthMethod(id: number): Promise<AuthMethod>{ 
+        const exists = await this.authMethodsRepository.findOne({
+            where: {
+                id: id
+            }
+        });
+
+        if(!exists){
+            throw new HttpException('Auth method not found', HttpStatus.NOT_FOUND);
+        }
+
+        return exists
+    }
+
     async deleteAuthMethod(id: number){
         const result = await this.authMethodsRepository.delete({id});
 

@@ -19,6 +19,11 @@ export class AuthMethodsController {
         return this.authMethodsService.getAuthMethods();
     }
 
+    @Get(':id')
+    getOneAuthMethod(@Param('id', ParseIntPipe) id: number){
+        return this.authMethodsService.getOneAuthMethod(id);
+    }
+
     @Delete()
     deleteAuthMethod(@Param('id', ParseIntPipe) id: number){
         return this.authMethodsService.deleteAuthMethod(id);

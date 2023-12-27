@@ -18,9 +18,6 @@ export class User {
   @Column()
   auth_method_id: number;
 
-  @Column({ length: 32, nullable: false })
-  uuid: string;
-
   @Column({ length: 50, nullable: false, unique: true})
   email: string;
 
@@ -30,6 +27,6 @@ export class User {
   @Column({nullable: false, default: false})
   clean_free: boolean;
 
-  @Column()
+  @Column({ type: 'timestamp', default: () => 'NOW()'})
   created_at: Date;
 }

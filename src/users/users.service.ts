@@ -2,73 +2,75 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { CreateUserDto } from './dto/create-user.dto';
+import { SingUpDto } from './dto/singup-user.dto';
+import { SignInDto } from './dto/signin-user.dto';
+import { AuthMethodsService } from 'src/auth_methods/auth_methods.service';
 
 @Injectable()
 export class UsersService {
-    /* constructor(
-        @InjectRepository(User)
-        private readonly usersRepository: Repository<User>
-    ){}
+  constructor(
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
+    private authMethodsService: AuthMethodsService,
+  ) {}
 
-    async createUser(user: CreateUserDto){
-        const userExists = await this.usersRepository.findOne({
-            where: {
-                identity_document: user.identity_document,
-                number_document: user.number_document
-            }
-        });
+  correctDate(date: string) {
+    const dateUtc = new Date(date);
+    return new Date(dateUtc.getTime() + dateUtc.getTimezoneOffset() * 60000);
+  }
 
-        if(userExists){
-            return new HttpException('User already exists', HttpStatus.CONFLICT);
-        }
+  async signUp(user: SingUpDto) {
+    try {
+      const userExists = await this.usersRepository.findOne({
+        where: {
+          email: user.email.toLowerCase(),
+        },
+      });
 
-        const newUser = this.usersRepository.create(user);
-        return this.usersRepository.save(newUser);
+      if (userExists) {
+        return new HttpException('User already exists', HttpStatus.CONFLICT);
+      }
+
+      user.email = user.email.toLowerCase();
+
+      const newUser = this.usersRepository.create(user);
+      return this.usersRepository.save(newUser);
+    } catch (error) {
+      throw new HttpException(
+        'Error creating user',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async sigin(user: SignInDto) {
+    const auth_method = await this.authMethodsService.getOneAuthMethod(
+      user.auth_method_id,
+    );
+
+    if (auth_method.auth_method === 'Email') {
+      const userFound = await this.usersRepository.findOne({
+        where: {
+          email: user.email,
+          password: user.password,
+        },
+      });
+
+      if (!userFound) {
+        return new HttpException('User not found', HttpStatus.NOT_FOUND);
+      }
+
+      return userFound;
+    }
+  }
+
+  async deleteUser(id: number) {
+    const result = await this.usersRepository.delete({ id });
+
+    if (result.affected === 0) {
+      return new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    getUsers(){ 
-        return this.usersRepository.find();
-    }
-
-    async getUserByDocument(data: {identity_document: number, number_document: string}){
-        const user = await this.usersRepository.findOne({
-            where: {
-                identity_document: data.identity_document,
-                number_document: data.number_document
-            }
-        });
-
-        if(!user){
-            return new HttpException('User not found', HttpStatus.NOT_FOUND);
-        }
-
-        return user;
-    }
-
-    async deleteUser(id: number){
-        const result = await this.usersRepository.delete({id});
-
-        if(result.affected === 0){
-            return new HttpException('User not found', HttpStatus.NOT_FOUND);
-        }
-
-        return new HttpException('User deleted successfully', HttpStatus.OK);
-    }
-
-    async updateUser(id: number, user: UpdateUserDto){
-        const userFound = await this.usersRepository.findOne({
-            where: {
-                id: id
-            }
-        });
-
-        if(!userFound){
-            return new HttpException('User not found', HttpStatus.NOT_FOUND);
-        }
-
-        const updateUser = Object.assign(userFound, user);
-        return this.usersRepository.save(updateUser);
-    } */
+    return new HttpException('User deleted successfully', HttpStatus.OK);
+  }
 }

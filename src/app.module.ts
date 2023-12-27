@@ -5,6 +5,7 @@ import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AuthMethodsModule } from './auth_methods/auth_methods.module';
+import { ProfilesModule } from './profiles/profiles.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AuthMethodsModule } from './auth_methods/auth_methods.module';
     ConfigModule.forRoot(),
     UsersModule,
     AuthMethodsModule,
+    ProfilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
