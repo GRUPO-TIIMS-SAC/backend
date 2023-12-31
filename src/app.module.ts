@@ -6,6 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AuthMethodsModule } from './auth_methods/auth_methods.module';
 import { ProfilesModule } from './profiles/profiles.module';
+import { TmpValidatedEmailModule } from './tmp_validated_email/tmp_validated_email.module';
+import { SendEmailModule } from './send_email/send_email.module';
 
 @Module({
   imports: [
@@ -23,6 +25,8 @@ import { ProfilesModule } from './profiles/profiles.module';
     UsersModule,
     AuthMethodsModule,
     ProfilesModule,
+    TmpValidatedEmailModule,
+    SendEmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

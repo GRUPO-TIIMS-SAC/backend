@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 import { SingUpDto } from './dto/singup-user.dto';
 import { SignInDto } from './dto/signin-user.dto';
 import { AuthMethodsService } from 'src/auth_methods/auth_methods.service';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -12,6 +14,7 @@ export class UsersService {
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
     private authMethodsService: AuthMethodsService,
+    private jwtService: JwtService,
   ) {}
 
   correctDate(date: string) {
@@ -32,6 +35,14 @@ export class UsersService {
       }
 
       user.email = user.email.toLowerCase();
+      const auth_method = await this.authMethodsService.getOneAuthMethod(
+        user.auth_method_id,
+      );
+
+      if (auth_method.auth_method === 'Email') {
+        const hashedPassword = await bcrypt.hash(user.password, 10);
+        user.password = hashedPassword;
+      }
 
       const newUser = this.usersRepository.create(user);
       return this.usersRepository.save(newUser);
