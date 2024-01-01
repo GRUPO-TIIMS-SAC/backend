@@ -5,8 +5,8 @@ import { Repository } from 'typeorm';
 import { SendEmailDto } from './dto/sendEmail.dto';
 import { CreateTmpValidatedEmailDto } from './dto/createTmpValidatedEmail.dto';
 import { SendEmailService } from 'src/send_email/send_email.service';
-import { json } from 'stream/consumers';
-import { StringifyOptions } from 'querystring';
+import { ValidatedCodeDto } from './dto/validated-code.dto';
+import { generateHtml } from 'src/send_email/email_template';
 
 @Injectable()
 export class TmpValidatedEmailService {
@@ -73,12 +73,7 @@ export class TmpValidatedEmailService {
         from: 'Acme <onboarding@resend.dev>',
         to: email,
         subject: 'Código de verificación',
-        html: `
-        <h1 style='text-center'>Código de verificación</h1>
-        <div style='width:255px; height: 55px; background-color: #FF7F50'>
-            <p style='color: white'>El código de verificación es: <strong>${code}</strong></p>
-        </div>
-        `,
+        html: generateHtml(code),
       });
 
       return data;
@@ -88,5 +83,67 @@ export class TmpValidatedEmailService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  async validateCode(body: ValidatedCodeDto) {
+    const email = await this.tmpValidatedEmailRepository.findOne({
+      where: {
+        email: body.email,
+      },
+    });
+
+    if (!email) {
+      return new HttpException(
+        'Email not found',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const fifteenMinutes = 15 * 60 * 1000; // 15 minutos en milisegundos
+    const currentDate = new Date();
+    const updatedDate = email.updated_at;
+
+    if (currentDate.getTime() - updatedDate.getTime() >= fifteenMinutes) {
+      return new HttpException(
+        'Code expired',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    if (email.code !== body.code) {
+      return new HttpException(
+        'Invalid code',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const updateTmp = Object.assign(email, {
+      attempts: email.attempts + 1,
+    });
+
+    return this.tmpValidatedEmailRepository.save(updateTmp);
+  }
+
+  async getOneTmpValidatedEmail(email: string) {
+    const exists = await this.tmpValidatedEmailRepository.findOne({
+      where: {
+        email: email,
+      },
+    });
+
+    return exists;
+  }
+
+  async deleteTmpValidatedEmail(email: string) {
+    const result = await this.tmpValidatedEmailRepository.delete({ email });
+
+    if (result.affected === 0) {
+      return new HttpException('Email not found', HttpStatus.NOT_FOUND);
+    }
+
+    return new HttpException(
+      `${result.affected} emails deleted`,
+      HttpStatus.OK,
+    );
   }
 }

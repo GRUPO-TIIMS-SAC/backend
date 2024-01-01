@@ -7,17 +7,19 @@ import {
     ManyToOne,
     JoinColumn,
     OneToMany,
+    OneToOne,
   } from 'typeorm';
 import { Gender } from './genders.entity';
-import { Nacionality } from './nacionalities.entity';
+import { Nationality } from './nacionalities.entity';
 import { Document } from './documents.entity';
+import { User } from './user.entity';
   
   @Entity({ name: 'profiles' })
-  export class User {
+  export class Profile {
     @PrimaryGeneratedColumn()
     id: number;
   
-    @OneToMany(() => User, user => user.id)
+    @OneToOne(() => User, user => user.id)
     @JoinColumn({name: 'user_id'})  
     @Column({nullable: false})
     user_id: number;
@@ -45,12 +47,12 @@ import { Document } from './documents.entity';
     @Column({nullable: false})
     gender_id: number;
 
-    @ManyToOne(() => Nacionality, nacionality => nacionality.id)
-    @JoinColumn({name:'nacionality_id'})
+    @ManyToOne(() => Nationality, nationality => nationality.id)
+    @JoinColumn({name:'nationality_id'})
     @Column({nullable: false})
     nationality_id: number;
     
-    @Column({type: 'char', length: 1, nullable: false})
+    @Column({type: 'char', length: 1, nullable: false, default: '0'})
     type: string;
 
     @Column({ length: 2500, nullable: true})

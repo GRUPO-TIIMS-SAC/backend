@@ -19,4 +19,7 @@ import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;
+
+  @Column({default: 0})
+  attempts: number;
 }

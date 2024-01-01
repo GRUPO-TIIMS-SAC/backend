@@ -5,9 +5,12 @@ import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AuthMethodsModule } from './auth_methods/auth_methods.module';
-import { ProfilesModule } from './profiles/profiles.module';
 import { TmpValidatedEmailModule } from './tmp_validated_email/tmp_validated_email.module';
 import { SendEmailModule } from './send_email/send_email.module';
+import { ProfilesModule } from './profiles/profiles.module';
+import { GendersModule } from './genders/genders.module';
+import { NationalitiesModule } from './nationalities/nationalities.module';
+import { DocumentsModule } from './documents/documents.module';
 
 @Module({
   imports: [
@@ -24,9 +27,12 @@ import { SendEmailModule } from './send_email/send_email.module';
     ConfigModule.forRoot(),
     UsersModule,
     AuthMethodsModule,
-    ProfilesModule,
     TmpValidatedEmailModule,
     SendEmailModule,
+    ProfilesModule,
+    GendersModule,
+    NationalitiesModule,
+    DocumentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

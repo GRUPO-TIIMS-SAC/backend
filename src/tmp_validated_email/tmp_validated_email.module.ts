@@ -11,6 +11,7 @@ import { SendEmailModule } from 'src/send_email/send_email.module';
     SendEmailModule,
   ],
   controllers: [TmpValidatedEmailController],
-  providers: [TmpValidatedEmailService]
+  providers: [TmpValidatedEmailService],
+  exports: [TmpValidatedEmailService],
 })
 export class TmpValidatedEmailModule {}
