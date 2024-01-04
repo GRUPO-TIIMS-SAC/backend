@@ -43,6 +43,7 @@ export class TmpValidatedEmailService {
     if (idEmail instanceof HttpException) {
       return idEmail;
     } else {
+      console.log(idEmail);
       jsonEmail = JSON.parse(JSON.stringify(idEmail));
     }
 
@@ -75,10 +76,11 @@ export class TmpValidatedEmailService {
         subject: 'Código de verificación',
         html: generateHtml(code),
       });
-
+      console.log(data);
       return data;
     } catch (e) {
-      return new HttpException(
+      console.log(e)
+      throw new HttpException(
         'Error sending email',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
