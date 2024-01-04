@@ -25,10 +25,10 @@ export class SendEmailService {
     
         try {
           const response = await axios.post(url, data, { headers });
-          console.log(response.data);
+          console.log('response: ', response);
           return response.data;
         } catch (error) {
-          console.error(error);
+          console.error('Error: ', error);
           return error;
         }
       }

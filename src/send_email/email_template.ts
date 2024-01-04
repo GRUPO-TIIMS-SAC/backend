@@ -10,8 +10,8 @@ export function generateHtml(code: string) {
           width: 200px;
           height: 55px;
           background-color: #ed820e;
-          display: flex;
-          justify-content: center;
+          display: grid;
+          justify-items: center;
           align-items: center;
         "
       >
