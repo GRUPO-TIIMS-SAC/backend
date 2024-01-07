@@ -2,7 +2,9 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from 
 import { AuthMethodsService } from './auth_methods.service';
 import { CreateAuthMethodDto } from './dto/create-auth_method.dto';
 import { UpdateAuthMethodDto } from './dto/update-auth_method.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth Methods')
 @Controller('auth-methods')
 export class AuthMethodsController {
     constructor(

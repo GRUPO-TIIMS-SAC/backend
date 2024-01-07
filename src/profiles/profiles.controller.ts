@@ -2,7 +2,9 @@ import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { ProfilesService } from './profiles.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UsersGuard } from 'src/users/users.guard';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Profiles')
 @Controller('profiles')
 export class ProfilesController {
     constructor(
