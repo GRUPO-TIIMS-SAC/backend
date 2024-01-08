@@ -1,4 +1,4 @@
-export interface ValidatedCodeDto {
+export class ValidatedCodeDto {
     email: string;
     code: string;
 }

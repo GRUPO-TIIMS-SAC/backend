@@ -1,3 +1,3 @@
-export interface SendEmailDto {
+export class SendEmailDto {
   email: string;
 }
