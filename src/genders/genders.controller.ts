@@ -1,7 +1,9 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { GendersService } from './genders.service';
 import { CreateUpdateGender } from './dto/create--update-gender.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Genders')
 @Controller('genders')
 export class GendersController {
     constructor(

@@ -1,7 +1,9 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { DocumentsService } from './documents.service';
 import { CreateUpdateDocument } from './dto/create-update-document.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Documents')
 @Controller('documents')
 export class DocumentsController {
     constructor(

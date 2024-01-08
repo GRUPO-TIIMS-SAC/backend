@@ -1,16 +1,17 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { AuthMethodsModule } from './auth_methods/auth_methods.module';
-import { TmpValidatedEmailModule } from './tmp_validated_email/tmp_validated_email.module';
-import { SendEmailModule } from './send_email/send_email.module';
-import { ProfilesModule } from './profiles/profiles.module';
+import { DocumentsModule } from './documents/documents.module';
 import { GendersModule } from './genders/genders.module';
 import { NationalitiesModule } from './nationalities/nationalities.module';
-import { DocumentsModule } from './documents/documents.module';
+import { ProfilesModule } from './profiles/profiles.module';
+import { SendEmailModule } from './send_email/send_email.module';
+import { TmpValidatedEmailModule } from './tmp_validated_email/tmp_validated_email.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
