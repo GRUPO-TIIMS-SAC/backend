@@ -3,5 +3,4 @@ export class SingUpDto{
     email: string;
     password?: string;
     validated_code?: string;
-    created_at?: Date;
 }
