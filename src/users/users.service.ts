@@ -105,8 +105,6 @@ export class UsersService {
   }
 
   private async signUpOAuth(user: SingUpDto) {
-    user.password = null;
-
     const newUserBody = {
       email: user.email,
       auth_method_id: user.auth_method_id,
@@ -122,35 +120,60 @@ export class UsersService {
     );
 
     if (auth_method.auth_method === 'Email') {
-      const userFound = await this.usersRepository.findOne({
-        where: {
-          email: user.email,
-        },
-      });
-
-      if (!userFound) {
-        return new HttpException('User not found', HttpStatus.NOT_FOUND);
-      }
-      const resp = await bcrypt.compare(user.password, userFound.password);
-
-      if (!resp) {
-        throw new UnauthorizedException();
-      }
-
-      const payload = {
-        email: userFound.email,
-        id: userFound.id,
-        auth_method_id: userFound.auth_method_id,
-      };
-      const access_token = await this.jwtService.signAsync(payload);
-      console.log(access_token);
-      return new HttpException(
-        {
-          access_token: access_token,
-        },
-        HttpStatus.OK,
-      );
+      return this.signInJwt(user);
+    }else{
+      return this.signInOAuth(user);
     }
+  }
+
+  private async signInOAuth(user: SignInDto) {
+    const userFound = await this.usersRepository.findOne({
+      where: {
+        email: user.email,
+        auth_method_id: user.auth_method_id,
+      },
+    });
+
+    if (!userFound) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    return new HttpException(
+      'User logged in successfully',
+      HttpStatus.OK,
+    );
+  }
+
+  private async signInJwt(user: SignInDto) {
+    const userFound = await this.usersRepository.findOne({
+      where: {
+        email: user.email,
+      },
+    });
+
+    if (!userFound) {
+      return new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    const resp = await bcrypt.compare(user.password, userFound.password);
+
+    if (!resp) {
+      throw new UnauthorizedException();
+    }
+
+    const payload = {
+      email: userFound.email,
+      id: userFound.id,
+      auth_method_id: userFound.auth_method_id,
+    };
+    const access_token = await this.jwtService.signAsync(payload);
+    console.log(access_token);
+    return new HttpException(
+      {
+        access_token: access_token,
+      },
+      HttpStatus.OK,
+    );
   }
 
   async deleteUser(id: number) {

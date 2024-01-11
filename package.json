@@ -17,7 +17,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "generate:all-component": "nest g module %npm_config_name% && nest g controller %npm_config_name% --no-spec && nest g service %npm_config_name% --no-spec"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

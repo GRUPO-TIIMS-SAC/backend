@@ -12,6 +12,8 @@ import { ProfilesModule } from './profiles/profiles.module';
 import { SendEmailModule } from './send_email/send_email.module';
 import { TmpValidatedEmailModule } from './tmp_validated_email/tmp_validated_email.module';
 import { UsersModule } from './users/users.module';
+import { SpecialitiesModule } from './specialities/specialities.module';
+import { SubspecialitiesModule } from './subspecialities/subspecialities.module';
 
 @Module({
   imports: [
@@ -34,6 +36,8 @@ import { UsersModule } from './users/users.module';
     GendersModule,
     NationalitiesModule,
     DocumentsModule,
+    SpecialitiesModule,
+    SubspecialitiesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
