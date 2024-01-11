@@ -1,6 +1,5 @@
 export interface CreateProfileDto {
     user_id: number;
-    fullname: string;
     phone: string;
     addres: string;
     district: string;

@@ -23,10 +23,7 @@ import { User } from './user.entity';
     @JoinColumn({name: 'user_id'})  
     @Column({nullable: false})
     user_id: number;
-  
-    @Column({ length: 75, nullable: false })
-    fullname: string;
-  
+    
     @Column({ length: 12, nullable: true })
     phone: string;
   

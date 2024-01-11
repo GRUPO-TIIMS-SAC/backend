@@ -23,9 +23,15 @@ export class User {
 
   @Column({ length: 250, nullable: true })
   password: string;
+  
+  @Column({ length: 75, nullable: false })
+  fullname: string;
 
   @Column({nullable: false, default: false})
   clean_free: boolean;
+
+  @Column({nullable: true, default: null})
+  refer_code: string;
 
   @Column({ type: 'timestamp', default: () => 'NOW()'})
   created_at: Date;
