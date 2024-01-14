@@ -108,6 +108,7 @@ export class UsersService {
     const newUserBody = {
       email: user.email,
       fullname: user.fullname,
+      refer_code: user.refer_code,
       auth_method_id: user.auth_method_id,
     };
 
