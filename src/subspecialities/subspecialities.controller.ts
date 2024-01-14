@@ -2,7 +2,9 @@ import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs
 import { SubspecialitiesService } from './subspecialities.service';
 import { CreateSubSpecialityDto } from './dto/create_subspecialities.dto';
 import { UpdateSubSpecialtyDto } from './dto/update_subspecialities.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Subspecialities')
 @Controller('subspecialities')
 export class SubspecialitiesController {
     constructor(

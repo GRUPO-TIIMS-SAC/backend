@@ -107,6 +107,7 @@ export class UsersService {
   private async signUpOAuth(user: SingUpDto) {
     const newUserBody = {
       email: user.email,
+      fullname: user.fullname,
       auth_method_id: user.auth_method_id,
     };
 
@@ -127,21 +128,30 @@ export class UsersService {
   }
 
   private async signInOAuth(user: SignInDto) {
-    const userFound = await this.usersRepository.findOne({
-      where: {
-        email: user.email,
-        auth_method_id: user.auth_method_id,
-      },
-    });
 
-    if (!userFound) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    try {
+      const userFound = await this.usersRepository.findOne({
+        where: {
+          email: user.email,
+          auth_method_id: user.auth_method_id,
+        },
+      });
+  
+      if (!userFound) {
+        return new HttpException('User not found', HttpStatus.NOT_FOUND);
+      }
+  
+      return new HttpException(
+        'User logged in successfully',
+        HttpStatus.OK,
+      );
+    } catch (error) {
+      throw new HttpException(
+        'Error creating user',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
-
-    return new HttpException(
-      'User logged in successfully',
-      HttpStatus.OK,
-    );
+    
   }
 
   private async signInJwt(user: SignInDto) {
