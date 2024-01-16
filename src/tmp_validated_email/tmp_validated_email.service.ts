@@ -89,7 +89,7 @@ export class TmpValidatedEmailService {
 
   async testRespprev(){
     const status = HttpStatus.OK
-    return new HttpException({data:{}, message: 'Error', status: status}, status);
+    return new HttpException({message: 'Error', status: status}, status);
   }
 
   async testResp(){
