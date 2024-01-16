@@ -38,8 +38,7 @@ export class UsersService {
     });
 
     if (userExists) {
-      throw new HttpException('User already exists', HttpStatus.CONFLICT);
-      return;
+      return new HttpException({message: 'User already exists', data: {}}, HttpStatus.CONFLICT);
     }
 
     user.email = user.email.toLowerCase();
@@ -57,18 +56,18 @@ export class UsersService {
 
   private async signUpJWT(user: SingUpDto) {
     if (!user.password) {
-      throw new HttpException('Password is required', HttpStatus.BAD_REQUEST);
+      return new HttpException({message: 'Password is required', data: {}}, HttpStatus.BAD_REQUEST);
     }
 
     const validatedEmail =
       await this.tmpValidatedEmailService.getOneTmpValidatedEmail(user.email);
 
     if (!validatedEmail) {
-      throw new HttpException('Email not found', HttpStatus.NOT_FOUND);
+      return new HttpException({message: 'Email not found', data: {}}, HttpStatus.NOT_FOUND);
     }
 
     if (validatedEmail.attempts >= 5) {
-      throw new HttpException('Too many attempts', HttpStatus.BAD_REQUEST);
+      return new HttpException({message: 'Too many attempts', data: {}}, HttpStatus.BAD_REQUEST);
     }
 
     try {
@@ -95,7 +94,7 @@ export class UsersService {
 
       const newUser = this.usersRepository.create(newUserBody);
       const bodyUserCreated = await this.usersRepository.save(newUser);
-      throw new HttpException(
+      return new HttpException(
         { message: 'User created successfully', data: bodyUserCreated },
         HttpStatus.CREATED,
       );
@@ -117,7 +116,11 @@ export class UsersService {
     };
 
     const newUser = this.usersRepository.create(newUserBody);
-    return this.usersRepository.save(newUser);
+    const respData = await this.usersRepository.save(newUser);
+    return new HttpException(
+      { message: 'User created successfully', data: respData },
+      HttpStatus.CREATED,
+    );
   }
 
   async sigin(user: SignInDto) {
@@ -143,16 +146,16 @@ export class UsersService {
       });
   
       if (!userFound) {
-        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+        return new HttpException({message: 'User not found'}, HttpStatus.NOT_FOUND);
       }
   
-      throw new HttpException(
-        'User logged in successfully',
+      return new HttpException(
+        {message: 'User logged in successfully', data: userFound},
         HttpStatus.OK,
       );
     } catch (error) {
-      throw new HttpException(
-        'Error creating user',
+      return new HttpException(
+        {message: 'Error logging in user', data: {}, error: error},
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -167,13 +170,13 @@ export class UsersService {
     });
 
     if (!userFound) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      return new HttpException({message: 'User not found', data:{}}, HttpStatus.NOT_FOUND);
     }
 
     const resp = await bcrypt.compare(user.password, userFound.password);
 
     if (!resp) {
-      throw new UnauthorizedException();
+      return new UnauthorizedException();
     }
 
     const payload = {
@@ -183,7 +186,7 @@ export class UsersService {
     };
     const access_token = await this.jwtService.signAsync(payload);
     console.log(access_token);
-    throw new HttpException(
+    return new HttpException(
       {
         access_token: access_token,
       },

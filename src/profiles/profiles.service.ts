@@ -31,7 +31,8 @@ export class ProfilesService {
 
     try {
       const newProfile = this.profileRepository.create(profile);
-      return this.profileRepository.save(newProfile);
+      const respData = await this.profileRepository.save(newProfile);
+      throw new HttpException({data: respData, message: 'Profile created'}, HttpStatus.CREATED);
     } catch (error) {
       console.log('Error: ', error);
       throw new HttpException('Error creating profile', HttpStatus.CONFLICT);

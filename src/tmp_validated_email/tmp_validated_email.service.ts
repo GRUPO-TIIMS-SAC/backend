@@ -65,7 +65,8 @@ export class TmpValidatedEmailService {
     const newTmpValidatedEmail = this.tmpValidatedEmailRepository.create(
       tmpValidatedEmailBody,
     );
-    return this.tmpValidatedEmailRepository.save(newTmpValidatedEmail);
+    const respData = await this.tmpValidatedEmailRepository.save(newTmpValidatedEmail);
+    return new HttpException({message: 'Email sent', idEmail: respData.email_id}, HttpStatus.OK);
   }
 
   private async sendEmail(email: string, code: string) {
@@ -79,7 +80,7 @@ export class TmpValidatedEmailService {
       return data;
     } catch (e) {
       console.log(e);
-      throw new HttpException(
+      return new HttpException(
         'Error sending email',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -87,11 +88,13 @@ export class TmpValidatedEmailService {
   }
 
   async testRespprev(){
-    throw new HttpException({data:{}, message: 'Error'}, HttpStatus.OK);
+    const status = HttpStatus.OK
+    return new HttpException({data:{}, message: 'Error', status: status}, status);
   }
 
   async testResp(){
-    return this.testRespprev();
+    
+    return (await this.testRespprev()).getResponse();
   }
 
   private correctDate(date: string) {
