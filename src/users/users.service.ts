@@ -101,7 +101,7 @@ export class UsersService {
     } catch (error) {
       console.log(error);
       throw new HttpException(
-        'Error creating user',
+        {data:{}, message:'Error creating user'},
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

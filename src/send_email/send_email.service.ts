@@ -5,7 +5,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 export class SendEmailService {
     constructor( private readonly mailerService: MailerService ){}
 
-    async send(body:{from: string, to: string, subject: string, html: string}){
+    async send(body:{from?: string, to: string, subject: string, html: string}){
       try {
         const respEmail = await this.mailerService.sendMail({
           to: body.to,
