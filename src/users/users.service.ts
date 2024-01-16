@@ -189,6 +189,7 @@ export class UsersService {
     return new HttpException(
       {
         access_token: access_token,
+        name: userFound.fullname,
       },
       HttpStatus.OK,
     );
