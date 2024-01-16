@@ -44,7 +44,7 @@ export class TmpValidatedEmailService {
       return idEmail;
     } else {
       console.log(idEmail);
-      jsonEmail = JSON.parse(JSON.stringify(idEmail));
+      jsonEmail.id = JSON.parse(JSON.stringify(idEmail)).messageId;
     }
 
     if (emailExists) {
