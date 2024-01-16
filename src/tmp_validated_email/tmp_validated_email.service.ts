@@ -66,7 +66,7 @@ export class TmpValidatedEmailService {
       tmpValidatedEmailBody,
     );
     const respData = await this.tmpValidatedEmailRepository.save(newTmpValidatedEmail);
-    return new HttpException({message: 'Email sent', idEmail: respData.email_id}, HttpStatus.OK);
+    return new HttpException({message: 'Email sent', data: respData}, HttpStatus.OK);
   }
 
   private async sendEmail(email: string, code: string) {
