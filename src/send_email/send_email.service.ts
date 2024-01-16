@@ -1,35 +1,22 @@
-import { Injectable } from '@nestjs/common';
-import axios from 'axios';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class SendEmailService {
-    constructor(){
+    constructor( private readonly mailerService: MailerService ){}
 
-    }
-
-    async send(body:{from: string, to: string, subject: string, html: string}) {
-        const url = 'https://api.resend.com/emails';
-        const apiKey = process.env.RESEND_API_KEY;
-    
-        const data = {
-          from: body.from,
+    async send(body:{from: string, to: string, subject: string, html: string}){
+      try {
+        const respEmail = await this.mailerService.sendMail({
           to: body.to,
           subject: body.subject,
           html: body.html,
-        };
-    
-        const headers = {
-          Authorization: `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        };
-    
-        try {
-          const response = await axios.post(url, data, { headers });
-          console.log('response: ', response);
-          return response.data;
-        } catch (error) {
-          console.error('Error: ', error);
-          return error;
-        }
+        })
+        console.log(respEmail.messageId);
+        return respEmail;
+      } catch (error) {
+        return new HttpException(error, HttpStatus.BAD_REQUEST)
       }
+      
+    }
 }
