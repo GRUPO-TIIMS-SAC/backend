@@ -20,4 +20,9 @@ export class TmpValidatedEmailController {
     async validateEmail(@Body() validatedCodeDto: ValidatedCodeDto){
         return this.tmpValidatedEmailService.validateCode(validatedCodeDto);
     }
+
+    @Get('test-resp')
+    async testResp(){
+        return this.tmpValidatedEmailService.testResp();
+    }
 }

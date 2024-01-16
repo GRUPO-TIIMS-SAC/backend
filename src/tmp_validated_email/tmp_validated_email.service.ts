@@ -71,7 +71,6 @@ export class TmpValidatedEmailService {
   private async sendEmail(email: string, code: string) {
     try {
       const data = await this.sendEmailService.send({
-        from: 'Acme <onboarding@resend.dev>',
         to: email,
         subject: 'Código de verificación',
         html: generateHtml(code),
@@ -85,6 +84,14 @@ export class TmpValidatedEmailService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  async testRespprev(){
+    throw new HttpException({data:{}, message: 'Error'}, HttpStatus.OK);
+  }
+
+  async testResp(){
+    return this.testRespprev();
   }
 
   private correctDate(date: string) {
