@@ -209,9 +209,9 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      return new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    throw new HttpException({ message: 'User found', data: user }, HttpStatus.OK);
+    return new HttpException({ message: 'User found', data: user }, HttpStatus.OK);
   }
 }
