@@ -38,7 +38,8 @@ export class UsersService {
     });
 
     if (userExists) {
-      return new HttpException('User already exists', HttpStatus.CONFLICT);
+      throw new HttpException('User already exists', HttpStatus.CONFLICT);
+      return;
     }
 
     user.email = user.email.toLowerCase();
@@ -67,7 +68,7 @@ export class UsersService {
     }
 
     if (validatedEmail.attempts >= 5) {
-      return new HttpException('Too many attempts', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Too many attempts', HttpStatus.BAD_REQUEST);
     }
 
     try {
@@ -94,7 +95,7 @@ export class UsersService {
 
       const newUser = this.usersRepository.create(newUserBody);
       const bodyUserCreated = await this.usersRepository.save(newUser);
-      return new HttpException(
+      throw new HttpException(
         { message: 'User created successfully', data: bodyUserCreated },
         HttpStatus.CREATED,
       );
@@ -142,10 +143,10 @@ export class UsersService {
       });
   
       if (!userFound) {
-        return new HttpException('User not found', HttpStatus.NOT_FOUND);
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
   
-      return new HttpException(
+      throw new HttpException(
         'User logged in successfully',
         HttpStatus.OK,
       );
@@ -166,7 +167,7 @@ export class UsersService {
     });
 
     if (!userFound) {
-      return new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
     const resp = await bcrypt.compare(user.password, userFound.password);
@@ -182,7 +183,7 @@ export class UsersService {
     };
     const access_token = await this.jwtService.signAsync(payload);
     console.log(access_token);
-    return new HttpException(
+    throw new HttpException(
       {
         access_token: access_token,
       },
@@ -194,10 +195,10 @@ export class UsersService {
     const result = await this.usersRepository.delete({ id });
 
     if (result.affected === 0) {
-      return new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    return new HttpException('User deleted successfully', HttpStatus.OK);
+    throw new HttpException('User deleted successfully', HttpStatus.OK);
   }
 
   async findOne(id: number) {
@@ -208,9 +209,9 @@ export class UsersService {
     });
 
     if (!user) {
-      return new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    return new HttpException({ message: 'User found', data: user }, HttpStatus.OK);
+    throw new HttpException({ message: 'User found', data: user }, HttpStatus.OK);
   }
 }

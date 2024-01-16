@@ -86,8 +86,12 @@ export class TmpValidatedEmailService {
     }
   }
 
+  async testRespprev(){
+    throw new HttpException({data:{}, message: 'Error'}, HttpStatus.OK);
+  }
+
   async testResp(){
-    throw new HttpException({data:{}, message: 'Error'}, HttpStatus.INTERNAL_SERVER_ERROR);
+    return this.testRespprev();
   }
 
   private correctDate(date: string) {
