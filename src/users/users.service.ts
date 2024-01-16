@@ -89,6 +89,7 @@ export class UsersService {
         password: hashedPassword,
         fullname: user.fullname,
         auth_method_id: user.auth_method_id,
+        refer_code: user.refer_code,
       };
 
       const newUser = this.usersRepository.create(newUserBody);

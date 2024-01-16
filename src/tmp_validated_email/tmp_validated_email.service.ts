@@ -107,18 +107,9 @@ export class TmpValidatedEmailService {
     }
 
     const fifteenMinutes = 15 * 60 * 1000; // 15 minutos en milisegundos
-    const currentDate = new Date().getTime();
-    const updatedDate = new Date(this.correctDate(email.updated_at.toString())).getTime();
+    const updatedDate = new Date(email.updated_at).getTime();
 
-    const date = this.correctDate(email.updated_at.getTime().toString());    
-
-    console.log(email.code+ ' = ' + body.code)
-    console.log(date);
-    console.log(fifteenMinutes);
-    console.log(updatedDate);
-    console.log(currentDate);
-
-    if (currentDate - updatedDate >= fifteenMinutes) {
+    if (new Date().getTime() - updatedDate >= fifteenMinutes) {
       return new HttpException(
         'Code expired',
         HttpStatus.INTERNAL_SERVER_ERROR,
