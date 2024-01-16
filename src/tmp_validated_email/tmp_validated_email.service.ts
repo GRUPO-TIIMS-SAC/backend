@@ -53,7 +53,12 @@ export class TmpValidatedEmailService {
         email_id: jsonEmail.id,
         updated_at: new Date(),
       });
-      return this.tmpValidatedEmailRepository.save(updateTmp);
+
+      const respData = await this.tmpValidatedEmailRepository.save(updateTmp);
+      return new HttpException(
+        { message: 'Email resent', data: respData },
+        HttpStatus.OK,
+      );
     }
 
     const tmpValidatedEmailBody: CreateTmpValidatedEmailDto = {
@@ -65,8 +70,12 @@ export class TmpValidatedEmailService {
     const newTmpValidatedEmail = this.tmpValidatedEmailRepository.create(
       tmpValidatedEmailBody,
     );
-    const respData = await this.tmpValidatedEmailRepository.save(newTmpValidatedEmail);
-    return new HttpException({message: 'Email sent', data: respData}, HttpStatus.OK);
+    const respData =
+      await this.tmpValidatedEmailRepository.save(newTmpValidatedEmail);
+    return new HttpException(
+      { message: 'Email sent', data: respData },
+      HttpStatus.OK,
+    );
   }
 
   private async sendEmail(email: string, code: string) {
@@ -87,13 +96,12 @@ export class TmpValidatedEmailService {
     }
   }
 
-  async testRespprev(){
-    const status = HttpStatus.OK
-    return new HttpException({message: 'Error', status: status}, status);
+  async testRespprev() {
+    const status = HttpStatus.OK;
+    return new HttpException({ message: 'Error', status: status }, status);
   }
 
-  async testResp(){
-    
+  async testResp() {
     return (await this.testRespprev()).getResponse();
   }
 
