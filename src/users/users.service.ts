@@ -87,6 +87,7 @@ export class UsersService {
       const newUserBody = {
         email: user.email,
         password: hashedPassword,
+        fullname: user.fullname,
         auth_method_id: user.auth_method_id,
       };
 
@@ -97,6 +98,7 @@ export class UsersService {
         HttpStatus.CREATED,
       );
     } catch (error) {
+      console.log(error);
       throw new HttpException(
         'Error creating user',
         HttpStatus.INTERNAL_SERVER_ERROR,

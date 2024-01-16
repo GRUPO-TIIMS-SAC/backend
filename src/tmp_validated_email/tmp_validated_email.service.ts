@@ -79,12 +79,17 @@ export class TmpValidatedEmailService {
       console.log(data);
       return data;
     } catch (e) {
-      console.log(e)
+      console.log(e);
       throw new HttpException(
         'Error sending email',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  private correctDate(date: string) {
+    const dateUtc = new Date(date);
+    return new Date(dateUtc.getTime() + dateUtc.getTimezoneOffset() * 60000);
   }
 
   async validateCode(body: ValidatedCodeDto) {
@@ -102,10 +107,18 @@ export class TmpValidatedEmailService {
     }
 
     const fifteenMinutes = 15 * 60 * 1000; // 15 minutos en milisegundos
-    const currentDate = new Date();
-    const updatedDate = email.updated_at;
+    const currentDate = new Date().getTime();
+    const updatedDate = new Date(this.correctDate(email.updated_at.toString())).getTime();
 
-    if (currentDate.getTime() - updatedDate.getTime() >= fifteenMinutes) {
+    const date = this.correctDate(email.updated_at.getTime().toString());    
+
+    console.log(email.code+ ' = ' + body.code)
+    console.log(date);
+    console.log(fifteenMinutes);
+    console.log(updatedDate);
+    console.log(currentDate);
+
+    if (currentDate - updatedDate >= fifteenMinutes) {
       return new HttpException(
         'Code expired',
         HttpStatus.INTERNAL_SERVER_ERROR,
