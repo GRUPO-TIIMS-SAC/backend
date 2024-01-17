@@ -22,4 +22,7 @@ import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 
   @Column({default: 0})
   attempts: number;
+
+  @Column({ default: false, nullable: false})
+  is_update: boolean;
 }

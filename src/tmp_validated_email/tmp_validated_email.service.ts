@@ -52,6 +52,7 @@ export class TmpValidatedEmailService {
         code: code,
         email_id: jsonEmail.id,
         updated_at: new Date(),
+        is_update: email.is_update ?? false,
       });
 
       const respData = await this.tmpValidatedEmailRepository.save(updateTmp);
@@ -65,6 +66,7 @@ export class TmpValidatedEmailService {
       email: email.email,
       code: this.generateRandomCode(),
       email_id: jsonEmail.id,
+      is_update: email.is_update ?? false,
     };
 
     const newTmpValidatedEmail = this.tmpValidatedEmailRepository.create(
@@ -110,6 +112,47 @@ export class TmpValidatedEmailService {
     return new Date(dateUtc.getTime() + dateUtc.getTimezoneOffset() * 60000);
   }
 
+  async validateCodeUpdate(body: ValidatedCodeDto){
+    const email = await this.tmpValidatedEmailRepository.findOne({
+      where: {
+        email: body.email,
+        is_update: true,
+      },
+    });
+
+    if(!email){
+      return new HttpException({message: 'Email not found'}, HttpStatus.NOT_FOUND);
+    }
+
+    const fifteenMinutes = 15 * 60 * 1000; // 15 minutos en milisegundos
+    const updatedDate = new Date(email.updated_at).getTime();
+
+    if (new Date().getTime() - updatedDate >= fifteenMinutes) {
+      return new HttpException(
+        'Code expired',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    if (email.code !== body.code) {
+      return new HttpException(
+        'Invalid code',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const updateTmp = Object.assign(email, {
+      attempts: email.attempts + 1,
+    });
+
+    const respData = await this.tmpValidatedEmailRepository.save(updateTmp);
+    console.log(respData);
+    return new HttpException(
+      { message: 'Email validated'},
+      HttpStatus.OK,
+    );
+  }
+
   async validateCode(body: ValidatedCodeDto) {
     const email = await this.tmpValidatedEmailRepository.findOne({
       where: {
@@ -119,7 +162,7 @@ export class TmpValidatedEmailService {
 
     if (!email) {
       return new HttpException(
-        'Email not found',
+        {message: 'Email not found'},
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
