@@ -14,6 +14,7 @@ import { TmpValidatedEmailService } from 'src/tmp_validated_email/tmp_validated_
 import { User } from 'src/entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { ValidatedCodeDto } from 'src/tmp_validated_email/dto/validated-code.dto';
+import { UpdatedPasswordDto } from './dto/update-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -160,6 +161,39 @@ export class UsersService {
       );
     }
     
+  }
+
+  async updatedPassword(body: UpdatedPasswordDto){
+    const userFound = await this.usersRepository.findOne({
+      where: {
+        email: body.email,
+      },
+    });
+    
+    if (!userFound) {
+      return new HttpException({message: 'User not found'}, HttpStatus.NOT_FOUND);
+    }
+
+    if(userFound.auth_method_id !== 4){
+      return new HttpException({message: 'This user not use password'}, HttpStatus.CONFLICT);
+    }
+
+    const isValidCode = await this.tmpValidatedEmailService.validateCodeUpdate({email: body.email, code: body.validated_code});
+
+    if(isValidCode.getStatus() !== HttpStatus.OK){
+      return isValidCode;
+    }
+
+    const hashedPassword = await bcrypt.hash(body.password, 10);
+    const updateUser = Object.assign(userFound, {
+      password: hashedPassword,
+    });
+
+    const respData = await this.usersRepository.save(updateUser);
+    return new HttpException(
+      { message: 'Password updated'},
+      HttpStatus.OK,
+    );
   }
 
   private async signInJwt(user: SignInDto) {

@@ -16,9 +16,14 @@ export class TmpValidatedEmailController {
         return this.tmpValidatedEmailService.sendValidatedEmail(emails);
     }
 
-    @Post('validate')
+    /* @Post('validate')
     async validateEmail(@Body() validatedCodeDto: ValidatedCodeDto){
         return this.tmpValidatedEmailService.validateCode(validatedCodeDto);
+    } */
+
+    @Post('validate-updated')
+    async validateUpdate(@Body() emails: ValidatedCodeDto){
+        return this.tmpValidatedEmailService.validateCodeUpdate(emails);
     }
 
     @Get('test-resp')
