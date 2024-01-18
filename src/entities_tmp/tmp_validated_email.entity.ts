@@ -5,7 +5,7 @@ import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 25, nullable: false,  })
+  @Column({ length: 100, nullable: false,  })
   email: string;
 
   @Column({ length: 6, nullable: false })

@@ -1,4 +1,4 @@
-export interface CreateProfileDto {
+export class CreateProfileDto {
     user_id: number;
     phone: string;
     addres: string;
