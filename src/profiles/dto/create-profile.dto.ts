@@ -1,7 +1,7 @@
 export class CreateProfileDto {
     user_id: number;
     phone: string;
-    addres: string;
+    address: string;
     district: string;
     province: string;
     department: string;

@@ -28,7 +28,7 @@ import { User } from './user.entity';
     phone: string;
   
     @Column({ length: 50, nullable: false })
-    addres: string;
+    address: string;
 
     @Column({ length: 25, nullable: false})
     district: string;
