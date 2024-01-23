@@ -14,6 +14,9 @@ import { TmpValidatedEmailModule } from './tmp_validated_email/tmp_validated_ema
 import { UsersModule } from './users/users.module';
 import { SpecialitiesModule } from './specialities/specialities.module';
 import { SubspecialitiesModule } from './subspecialities/subspecialities.module';
+import { RequestsModule } from './requests/requests.module';
+import { UnitsModule } from './units/units.module';
+import { StatusRequestModule } from './status_request/status_request.module';
 
 @Module({
   imports: [
@@ -38,6 +41,9 @@ import { SubspecialitiesModule } from './subspecialities/subspecialities.module'
     DocumentsModule,
     SpecialitiesModule,
     SubspecialitiesModule,
+    RequestsModule,
+    UnitsModule,
+    StatusRequestModule,
   ],
   controllers: [AppController],
   providers: [AppService],
