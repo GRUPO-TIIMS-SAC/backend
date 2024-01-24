@@ -15,32 +15,50 @@ export class ProfilesService {
     private readonly userService: UsersService,
   ) {}
 
-  async createProfile(profile: CreateProfileDto) {
+  async createProfile(token: any, profile: CreateProfileDto) {
     try {
+      const tokenDecoded = this.userService.decodeToken(token);
+
+      if (!tokenDecoded.id) {
+        return new HttpException(
+          { message: 'Token wrong' },
+          HttpStatus.CONFLICT,
+        );
+      }
+      return tokenDecoded;
       const profileExists = await this.profileRepository.findOne({
         where: {
-          user_id: profile.user_id,
+          user_id: tokenDecoded.id,
         },
       });
 
       if (profileExists) {
-        throw new HttpException('profile already exists', HttpStatus.CONFLICT);
+        return new HttpException(
+          { message: 'profile already exists' },
+          HttpStatus.CONFLICT,
+        );
       }
 
-      const user = await this.userService.findOne(profile.user_id);
+      const user = await this.userService.findOne(tokenDecoded.id);
       if (user.getStatus() === 404) {
-        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+        return new HttpException(
+          { message: 'User not found' },
+          HttpStatus.NOT_FOUND,
+        );
       }
 
       const newProfile = this.profileRepository.create(profile);
       const respData = await this.profileRepository.save(newProfile);
-      throw new HttpException(
+      return new HttpException(
         { data: respData, message: 'Profile created' },
         HttpStatus.CREATED,
       );
     } catch (error) {
       console.log('Error: ', error);
-      throw new HttpException('Error creating profile', HttpStatus.CONFLICT);
+      return new HttpException(
+        { message: 'Error creating profile' },
+        HttpStatus.CONFLICT,
+      );
     }
   }
 

@@ -1,5 +1,4 @@
 export class CreateProfileDto {
-    user_id: number;
     phone: string;
     address: string;
     district: string;

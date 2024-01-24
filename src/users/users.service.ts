@@ -15,6 +15,7 @@ import { User } from 'src/entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { ValidatedCodeDto } from 'src/tmp_validated_email/dto/validated-code.dto';
 import { UpdatedPasswordDto } from './dto/update-password.dto';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class UsersService {
@@ -25,11 +26,6 @@ export class UsersService {
     private readonly tmpValidatedEmailService: TmpValidatedEmailService,
     private jwtService: JwtService,
   ) {}
-
-  correctDate(date: string) {
-    const dateUtc = new Date(date);
-    return new Date(dateUtc.getTime() + dateUtc.getTimezoneOffset() * 60000);
-  }
 
   async signUp(user: SingUpDto) {
     const userExists = await this.usersRepository.findOne({
@@ -291,5 +287,16 @@ export class UsersService {
       { message: 'User found', data: user },
       HttpStatus.OK,
     );
+  }
+
+  decodeToken(token: string): any {
+    try {
+      const actualToken = token.split(' ')[1];
+      const decoded = jwt.decode(actualToken);
+      
+      return decoded;
+    } catch (err) {
+      return new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
+    }
   }
 }
