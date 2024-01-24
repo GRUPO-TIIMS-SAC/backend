@@ -64,7 +64,7 @@ export class TmpValidatedEmailService {
 
     const tmpValidatedEmailBody: CreateTmpValidatedEmailDto = {
       email: email.email,
-      code: this.generateRandomCode(),
+      code: code,
       email_id: jsonEmail.id,
       is_update: email.is_update ?? false,
     };

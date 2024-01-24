@@ -55,8 +55,8 @@ import { User } from './user.entity';
     @Column({ length: 2500, nullable: true})
     profile_photo: string;
 
-    @Column({type: 'int',nullable: false})
-    age: number;
+    @Column({nullable: false})
+    born_date: Date;
 
     @ManyToOne(() => Document, document => document.id)
     @JoinColumn({name:'document_id'})
