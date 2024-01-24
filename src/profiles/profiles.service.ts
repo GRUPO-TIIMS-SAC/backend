@@ -25,7 +25,6 @@ export class ProfilesService {
           HttpStatus.CONFLICT,
         );
       }
-      return tokenDecoded;
       const profileExists = await this.profileRepository.findOne({
         where: {
           user_id: tokenDecoded.id,
@@ -47,7 +46,7 @@ export class ProfilesService {
         );
       }
 
-      const newProfile = this.profileRepository.create(profile);
+      const newProfile = this.profileRepository.create({...profile, user_id: tokenDecoded.id});
       const respData = await this.profileRepository.save(newProfile);
       return new HttpException(
         { data: respData, message: 'Profile created' },

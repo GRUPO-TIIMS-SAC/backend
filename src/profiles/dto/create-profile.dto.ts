@@ -6,7 +6,7 @@ export class CreateProfileDto {
     department: string;
     gender_id: number;
     nationality_id: number;
-    age: number;
+    born_date: Date;
     document_id: number;
     number_document: string;
 }
