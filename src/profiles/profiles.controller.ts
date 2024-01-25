@@ -36,9 +36,9 @@ export class ProfilesController {
     return this.profilesService.createProfile(token, profile);
   }
 
-  @Post('validate-status-user')
-  async validateStatusUser(@Body() body: ValidateUserProcessStatusDto) {
-    return this.profilesService.validateStatusUser(body);
+  @Get('validate-status-user')
+  async validateStatusUser(@Headers('authorization') token: any) {
+    return this.profilesService.validateStatusUser(token);
   }
 
   @Post('change-status-user')
