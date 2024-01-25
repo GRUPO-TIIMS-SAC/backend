@@ -25,6 +25,7 @@ export class ProfilesService {
           HttpStatus.CONFLICT,
         );
       }
+
       const profileExists = await this.profileRepository.findOne({
         where: {
           user_id: tokenDecoded.id,
@@ -61,11 +62,20 @@ export class ProfilesService {
     }
   }
 
-  async validateStatusUser(body: ValidateUserProcessStatusDto) {
+  async validateStatusUser(token: any) {
     try {
+      const tokenDecoded = this.userService.decodeToken(token);
+
+      if (!tokenDecoded.id) {
+        return new HttpException(
+          { message: 'Token wrong' },
+          HttpStatus.CONFLICT,
+        );
+      }
+
       const profiles = await this.profileRepository.find({
         where: {
-          user_id: body.user_id,
+          user_id: tokenDecoded.id,
         },
       });
 
