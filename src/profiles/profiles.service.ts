@@ -121,13 +121,8 @@ export class ProfilesService {
           HttpStatus.NOT_FOUND,
         );
       }
-
-      if(body.type !== 'specialist' && body.type !== 'customer') {
-        return new HttpException(
-          { message: 'Type not valid' },
-          HttpStatus.BAD_REQUEST,
-        );
-      }
+      
+      body.type = body.type.toLowerCase();
 
       switch (body.type) {
         case 'specialist':
@@ -201,36 +196,9 @@ export class ProfilesService {
             HttpStatus.OK,
           );
         default:
-          if (profile.type === '3') {
-            return new HttpException(
-              {
-                message: 'User selected both platforms',
-                continue: true,
-              },
-              HttpStatus.OK,
-            );
-          }
-          if (profile.type === '1') {
-            return new HttpException(
-              {
-                message: 'User selected specialist',
-                continue: true,
-              },
-              HttpStatus.OK,
-            );
-          }
-          if (profile.type === '2') {
-            return new HttpException(
-              {
-                message: 'User selected client',
-                continue: true,
-              },
-              HttpStatus.OK,
-            );
-          }
           return new HttpException(
-            { message: 'User not selected platform', continue: false },
-            HttpStatus.OK,
+            { message: 'Type not valid' },
+            HttpStatus.BAD_REQUEST,
           );
       }
     } catch (error) {
