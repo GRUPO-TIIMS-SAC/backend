@@ -90,7 +90,7 @@ export class ProfilesService {
         return new HttpException(
           {
             message: 'Profile not found',
-            step: 'create profile',
+            step: 'profile',
             first_time: true,
           },
           HttpStatus.NOT_FOUND,
@@ -110,7 +110,7 @@ export class ProfilesService {
         return new HttpException(
           {
             message: 'User has not selected favorite specialities',
-            step: 'select specialities',
+            step: 'favorites',
             first_time: true,
           },
           HttpStatus.NOT_FOUND,
@@ -130,7 +130,7 @@ export class ProfilesService {
           return new HttpException(
             {
               message: 'User has not selected extra documents',
-              step: 'upload documents',
+              step: 'document',
               first_time: true,
             },
             HttpStatus.NOT_FOUND,
@@ -141,7 +141,7 @@ export class ProfilesService {
       //VALIDATE IF USER HAS SELECTED SPECIALIST OR CUSTOMER
 
       return new HttpException(
-        { message: 'All steps complete', step: 'home', first_time: false },
+        { message: 'All steps complete', step: 'done', first_time: false },
         HttpStatus.OK,
       );
     } catch (error) {
