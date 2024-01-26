@@ -6,6 +6,8 @@ import { CreateProfileDto } from './dto/create-profile.dto';
 import { UsersService } from 'src/users/users.service';
 import { ValidateUserProcessStatusDto } from './dto/validate-user-process-status.dto';
 import { changeStatusUserDto } from './dto/change-status-user.dto';
+import { FavoritesUsersService } from 'src/favorites_users/favorites_users.service';
+import { ExtraDocumentsService } from 'src/extra_documents/extra_documents.service';
 
 @Injectable()
 export class ProfilesService {
@@ -13,6 +15,8 @@ export class ProfilesService {
     @InjectRepository(Profile)
     private readonly profileRepository: Repository<Profile>,
     private readonly userService: UsersService,
+    private readonly favoriteUsersService: FavoritesUsersService,
+    private readonly extraDocumentsService: ExtraDocumentsService,
   ) {}
 
   async createProfile(token: any, profile: CreateProfileDto) {
@@ -47,7 +51,10 @@ export class ProfilesService {
         );
       }
 
-      const newProfile = this.profileRepository.create({...profile, user_id: tokenDecoded.id});
+      const newProfile = this.profileRepository.create({
+        ...profile,
+        user_id: tokenDecoded.id,
+      });
       const respData = await this.profileRepository.save(newProfile);
       return new HttpException(
         { data: respData, message: 'Profile created' },
@@ -57,7 +64,7 @@ export class ProfilesService {
       console.log('Error: ', error);
       return new HttpException(
         { message: 'Error creating profile' },
-        HttpStatus.CONFLICT,
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -73,7 +80,7 @@ export class ProfilesService {
         );
       }
 
-      const profiles = await this.profileRepository.find({
+      const profiles = await this.profileRepository.findOne({
         where: {
           user_id: tokenDecoded.id,
         },
@@ -81,25 +88,79 @@ export class ProfilesService {
 
       if (!profiles) {
         return new HttpException(
-          { message: 'Profile not found', first_time: true },
+          {
+            message: 'Profile not found',
+            step: 'create profile',
+            first_time: true,
+          },
           HttpStatus.NOT_FOUND,
         );
       }
 
+      //VALIDATE IF USER HAS SELECTED FAVORITE SPECIALITIES
+
+      const favoriteSpecialities =
+        await this.favoriteUsersService.getFavoritesByUser(token);
+
+      if (favoriteSpecialities.getStatus() == 409) {
+        return favoriteSpecialities;
+      }
+
+      if (favoriteSpecialities.getStatus() == 404) {
+        return new HttpException(
+          {
+            message: 'User has not selected favorite specialities',
+            step: 'select specialities',
+            first_time: true,
+          },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      //VALIDATE IF USER HAS SELECTED EXTRA DOCUMENTS
+
+      if (profiles.type === '1' || profiles.type === '3') {
+        const extraDocuments =
+          await this.extraDocumentsService.getExtraDocumentsByUser(token);
+        if (extraDocuments.getStatus() == 409) {
+          return extraDocuments;
+        }
+
+        if (extraDocuments.getStatus() == 404) {
+          return new HttpException(
+            {
+              message: 'User has not selected extra documents',
+              step: 'upload documents',
+              first_time: true,
+            },
+            HttpStatus.NOT_FOUND,
+          );
+        }
+      }
+
+      //VALIDATE IF USER HAS SELECTED SPECIALIST OR CUSTOMER
+
       return new HttpException(
-        { message: 'Profile exists', first_time: false },
+        { message: 'All steps complete', step: 'home', first_time: false },
         HttpStatus.OK,
       );
     } catch (error) {
       return new HttpException(
         { message: 'Error validating user process status' },
-        HttpStatus.CONFLICT,
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
 
   async changeStatusUser(token: any, body: changeStatusUserDto) {
     try {
+      /*
+      0 - uninitialized
+      1 - specialist
+      2 - customer
+      3 - both
+      */
+
       const tokenDecoded = this.userService.decodeToken(token);
 
       if (!tokenDecoded.id) {
@@ -121,7 +182,7 @@ export class ProfilesService {
           HttpStatus.NOT_FOUND,
         );
       }
-      
+
       body.type = body.type.toLowerCase();
 
       switch (body.type) {
@@ -204,7 +265,7 @@ export class ProfilesService {
     } catch (error) {
       return new HttpException(
         { message: 'Error changing user status' },
-        HttpStatus.CONFLICT,
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
