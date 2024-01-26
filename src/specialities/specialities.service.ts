@@ -13,41 +13,50 @@ export class SpecialitiesService {
   ) {}
 
   async create(body: CreateSpecialityDto) {
-    const specialityExists = await this.specialityRepository.findOne({
-      where: {
-        name: body.name,
-      },
-    });
-
-    if (specialityExists) {
-      throw new HttpException('Speciality already exists', HttpStatus.CONFLICT);
-    }
-
     try {
+      const specialityExists = await this.specialityRepository.findOne({
+        where: {
+          name: body.name,
+        },
+      });
+  
+      if (specialityExists) {
+        return new HttpException('Speciality already exists', HttpStatus.CONFLICT);
+      }
+
       const newProfile = this.specialityRepository.create(body);
+      const respData = await this.specialityRepository.save(newProfile);
       return new HttpException(
-        { data: newProfile, message: 'Speciality created' },
+        { data: respData, message: 'Speciality created' },
         HttpStatus.CREATED,
       );
     } catch (error) {
       console.log('Error: ', error);
-      throw new HttpException('Error creating profile', HttpStatus.CONFLICT);
+      return new HttpException({message: 'Error creating profile'}, HttpStatus.CONFLICT);
     }
   }
 
   async getAll() {
     try {
       const specialities = await this.specialityRepository.find();
-      if (specialities.length === 0) {
-        throw new HttpException('No specialities found', HttpStatus.NOT_FOUND);
+      if (!specialities || specialities.length === 0) {
+        return new HttpException({message: 'No specialities found', data: []}, HttpStatus.NOT_FOUND);
       }
+
+      const dataResp = specialities.map((speciality) => {
+        return {
+          id: speciality.id,
+          name: speciality.name, 
+          img: speciality.img}
+      });
+
       return new HttpException(
-        { data: specialities, message: 'Specialities found' },
+        { data: dataResp, message: 'Specialities found' },
         HttpStatus.OK,
       );
     } catch (error) {
-      throw new HttpException(
-        'Error getting specialities',
+      return new HttpException(
+        {message:'Error getting specialities'},
         HttpStatus.CONFLICT,
       );
     }
