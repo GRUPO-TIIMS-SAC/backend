@@ -42,8 +42,8 @@ export class ProfilesController {
   }
 
   @Post('change-status-user')
-  async changeStatusUser(@Body() body: changeStatusUserDto) {
-    return this.profilesService.changeStatusUser(body);
+  async changeStatusUser(@Headers('authorization') token: any, @Body() body: changeStatusUserDto) {
+    return this.profilesService.changeStatusUser(token, body);
   }
 
   @Get()

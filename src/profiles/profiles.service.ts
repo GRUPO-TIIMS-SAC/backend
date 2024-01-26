@@ -98,11 +98,20 @@ export class ProfilesService {
     }
   }
 
-  async changeStatusUser(body: changeStatusUserDto) {
+  async changeStatusUser(token: any, body: changeStatusUserDto) {
     try {
+      const tokenDecoded = this.userService.decodeToken(token);
+
+      if (!tokenDecoded.id) {
+        return new HttpException(
+          { message: 'Token wrong' },
+          HttpStatus.CONFLICT,
+        );
+      }
+
       const profile = await this.profileRepository.findOne({
         where: {
-          user_id: body.user_id,
+          user_id: tokenDecoded.id,
         },
       });
 
@@ -113,8 +122,15 @@ export class ProfilesService {
         );
       }
 
+      if(body.type !== 'specialist' && body.type !== 'customer') {
+        return new HttpException(
+          { message: 'Type not valid' },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
       switch (body.type) {
-        case '1':
+        case 'specialist':
           if (profile.type === '0') {
             const updateProfile = Object.assign(profile, { type: '1' });
             const respData = await this.profileRepository.save(updateProfile);
@@ -149,13 +165,13 @@ export class ProfilesService {
             { message: 'User selected both platforms', continue: true },
             HttpStatus.OK,
           );
-        case '2':
+        case 'customer':
           if (profile.type === '0') {
             const updateProfile = Object.assign(profile, { type: '2' });
             const respData = await this.profileRepository.save(updateProfile);
             return new HttpException(
               {
-                message: 'User selected client',
+                message: 'User selected customer',
                 data: respData,
                 continue: true,
               },
@@ -164,7 +180,7 @@ export class ProfilesService {
           }
           if (profile.type === '2') {
             return new HttpException(
-              { message: 'User already selected client', continue: true },
+              { message: 'User already selected customer', continue: true },
               HttpStatus.OK,
             );
           }
