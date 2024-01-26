@@ -17,6 +17,8 @@ import { SubspecialitiesModule } from './subspecialities/subspecialities.module'
 import { RequestsModule } from './requests/requests.module';
 import { UnitsModule } from './units/units.module';
 import { StatusRequestModule } from './status_request/status_request.module';
+import { FavoritesUsersModule } from './favorites_users/favorites_users.module';
+import { ExtraDocumentsModule } from './extra_documents/extra_documents.module';
 
 @Module({
   imports: [
@@ -44,6 +46,8 @@ import { StatusRequestModule } from './status_request/status_request.module';
     RequestsModule,
     UnitsModule,
     StatusRequestModule,
+    FavoritesUsersModule,
+    ExtraDocumentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

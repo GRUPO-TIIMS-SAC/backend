@@ -4,9 +4,16 @@ import { ProfilesController } from './profiles.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Profile } from 'src/entities/profiles.entity';
 import { UsersModule } from 'src/users/users.module';
+import { FavoritesUsersModule } from 'src/favorites_users/favorites_users.module';
+import { ExtraDocumentsModule } from 'src/extra_documents/extra_documents.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Profile]), UsersModule],
+  imports: [
+    TypeOrmModule.forFeature([Profile]),
+    UsersModule,
+    FavoritesUsersModule,
+    ExtraDocumentsModule
+  ],
   providers: [ProfilesService],
   controllers: [ProfilesController],
 })
