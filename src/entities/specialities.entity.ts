@@ -12,6 +12,6 @@ export class Speciality {
     @Column({nullable: false})
     img: string;
 
-    @Column({nullable: false})
+    @Column({nullable: false, default: () => 'CURRENT_TIMESTAMP'})
     created_at: Date;
 }
