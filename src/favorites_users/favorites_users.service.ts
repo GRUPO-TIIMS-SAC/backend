@@ -15,6 +15,9 @@ export class FavoritesUsersService {
 
   async createFavoriteUser(token: any, body: ICreateFavoriteUser) {
     try {
+      let id_save = [];
+      let respData_array = [];
+      let id_wrong = [];
       const tokenDecoded = this.userService.decodeToken(token);
 
       if (!tokenDecoded.id) {
@@ -33,38 +36,55 @@ export class FavoritesUsersService {
         );
       }
 
-      if(body.type_platform !== 'customer' && body.type_platform !== 'specialist') {
+      if (
+        body.type_platform !== 'customer' &&
+        body.type_platform !== 'specialist'
+      ) {
         return new HttpException(
           { message: 'Type platform wrong' },
           HttpStatus.CONFLICT,
         );
       }
 
-      const existsFavoriteUser = await this.favoritesUsersRepository.findOne({
-        where: {
-          user_id: tokenDecoded.id,
-          speciality_id: body.speciality_id,
-          type_platform: body.type_platform === 'customer' ? '1' : '0',
-        },
-      });
-
-      if (existsFavoriteUser) {
+      if (body.specialities_id.length === 0) {
         return new HttpException(
-          { message: 'Specialist already selected' },
+          { message: 'Speciality wrong' },
           HttpStatus.CONFLICT,
         );
       }
 
-        const newFavoriteUser = this.favoritesUsersRepository.create({
-            ...body,
+      for (let i = 0; i < body.specialities_id.length; i++) {
+        const existsFavoriteUser = await this.favoritesUsersRepository.findOne({
+          where: {
             user_id: tokenDecoded.id,
+            speciality_id: body.specialities_id[i],
+            type_platform: body.type_platform === 'customer' ? '1' : '0',
+          },
         });
 
-        const respData = await this.favoritesUsersRepository.save(newFavoriteUser);
-        return new HttpException(
-            { data: respData, message: 'Favorite user created' },
-            HttpStatus.CREATED,
-        );
+        if (existsFavoriteUser) {
+          id_wrong.push(body.specialities_id[i]);
+        } else {
+          const newFavoriteUser = this.favoritesUsersRepository.create({
+            ...body,
+            user_id: tokenDecoded.id,
+          });
+
+          const respData =
+            await this.favoritesUsersRepository.save(newFavoriteUser);
+          id_save.push(respData.id);
+          respData_array.push(respData);
+        }
+      }
+      console.log(respData_array);
+      return new HttpException(
+        {
+          save_ids: id_save,
+          wrong_ids: id_wrong,
+          message: 'Favorite user created',
+        },
+        HttpStatus.CREATED,
+      );
     } catch (error) {
       return new HttpException(
         { message: 'Error creating favorite user' },
@@ -99,7 +119,7 @@ export class FavoritesUsersService {
         },
       });
 
-      if(favorites.length === 0) {
+      if (favorites.length === 0) {
         return new HttpException(
           { message: 'Favorites not found' },
           HttpStatus.NOT_FOUND,
@@ -110,12 +130,11 @@ export class FavoritesUsersService {
         { data: favorites, message: 'Favorites selected' },
         HttpStatus.OK,
       );
-
     } catch (error) {
       return new HttpException(
         { message: 'Error selecting favorites' },
         HttpStatus.CONFLICT,
       );
     }
-  }    
+  }
 }
