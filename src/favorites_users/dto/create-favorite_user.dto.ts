@@ -1,4 +1,4 @@
 export class ICreateFavoriteUser {
-    speciality_id: number;
+    specialities_id: number[];
     type_platform: string;
 }
