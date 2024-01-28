@@ -1,8 +1,9 @@
 import { Body, Controller, Get, Headers, Post } from '@nestjs/common';
 import { FavoritesUsersService } from './favorites_users.service';
 import { ICreateFavoriteUser } from './dto/create-favorite_user.dto';
-import { ApiBearerAuth, ApiHeader } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiHeader, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('favorites-users')
 @Controller('favorites-users')
 export class FavoritesUsersController {
   constructor(private readonly favoritesUsersService: FavoritesUsersService) {}

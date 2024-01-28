@@ -33,10 +33,18 @@ export class FavoritesUsersService {
         );
       }
 
+      if(body.type_platform !== 'customer' && body.type_platform !== 'specialist') {
+        return new HttpException(
+          { message: 'Type platform wrong' },
+          HttpStatus.CONFLICT,
+        );
+      }
+
       const existsFavoriteUser = await this.favoritesUsersRepository.findOne({
         where: {
           user_id: tokenDecoded.id,
           speciality_id: body.speciality_id,
+          type_platform: body.type_platform === 'customer' ? '1' : '0',
         },
       });
 
