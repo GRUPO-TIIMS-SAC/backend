@@ -16,4 +16,7 @@ export class FavoritesUsers {
     @JoinColumn({name: 'speciality_id'})
     @Column({nullable: false})
     speciality_id: number;
+
+    @Column({type: 'char', length: 1, nullable: false})
+    type_platform: string;
 }
