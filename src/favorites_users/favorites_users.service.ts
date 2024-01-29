@@ -54,6 +54,7 @@ export class FavoritesUsersService {
       }
 
       for (let i = 0; i < body.specialities_id.length; i++) {
+        console.log(body.specialities_id[i])
         const existsFavoriteUser = await this.favoritesUsersRepository.findOne({
           where: {
             user_id: tokenDecoded.id,
@@ -68,6 +69,8 @@ export class FavoritesUsersService {
           const newFavoriteUser = this.favoritesUsersRepository.create({
             ...body,
             user_id: tokenDecoded.id,
+            speciality_id: body.specialities_id[i],
+            type_platform: body.type_platform === 'customer' ? '1' : '0',
           });
 
           const respData =
@@ -86,6 +89,7 @@ export class FavoritesUsersService {
         HttpStatus.CREATED,
       );
     } catch (error) {
+      console.log(error)
       return new HttpException(
         { message: 'Error creating favorite user' },
         HttpStatus.CONFLICT,
