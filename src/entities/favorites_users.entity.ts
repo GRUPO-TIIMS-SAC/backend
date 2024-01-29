@@ -7,7 +7,7 @@ export class FavoritesUsers {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToMany(() => User, user => user.id)
+    @ManyToOne(() => User, user => user.id)
     @JoinColumn({name: 'user_id'})
     @Column({nullable: false})
     user_id: number;
