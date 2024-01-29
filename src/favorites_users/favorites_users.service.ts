@@ -72,7 +72,7 @@ export class FavoritesUsersService {
             speciality_id: body.specialities_id[i],
             type_platform: body.type_platform === 'customer' ? '1' : '0',
           });
-
+          console.log(newFavoriteUser);
           const respData =
             await this.favoritesUsersRepository.save(newFavoriteUser);
           id_save.push(respData.id);
