@@ -52,7 +52,7 @@ export class FavoritesUsersService {
           HttpStatus.CONFLICT,
         );
       }
-
+      console.log(body.specialities_id);
       for (let i = 0; i < body.specialities_id.length; i++) {
         console.log(body.specialities_id[i])
         const existsFavoriteUser = await this.favoritesUsersRepository.findOne({
