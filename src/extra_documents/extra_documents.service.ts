@@ -79,7 +79,7 @@ export class ExtraDocumentsService {
       if (user.getStatus() === 404) {
         return new HttpException(
           { message: 'User not found' },
-          HttpStatus.NOT_FOUND,
+          HttpStatus.CONFLICT,
         );
       }
 
@@ -88,6 +88,13 @@ export class ExtraDocumentsService {
           user_id: tokenDecoded.id,
         },
       });
+
+      if(extraDocuments.length === 0){
+        return new HttpException(
+          { message: 'No extra documents found' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
 
       return new HttpException(
         { data: extraDocuments, message: 'Extra documents found' },

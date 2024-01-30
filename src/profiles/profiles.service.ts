@@ -118,10 +118,10 @@ export class ProfilesService {
       }
 
       //VALIDATE IF USER HAS SELECTED EXTRA DOCUMENTS
-
       if (profiles.type === '1' || profiles.type === '3') {
         const extraDocuments =
           await this.extraDocumentsService.getExtraDocumentsByUser(token);
+        console.log(extraDocuments);
         if (extraDocuments.getStatus() == 409) {
           return extraDocuments;
         }
@@ -186,8 +186,20 @@ export class ProfilesService {
       body.type = body.type.toLowerCase();
 
       switch (body.type) {
-        case 'specialist':
-          if (profile.type === '0') {
+        case 'specialist': {
+          const updateProfile = Object.assign(profile, { type: '1' });
+          const respData = await this.profileRepository.save(updateProfile);
+          return new HttpException(
+            {
+              message: 'User selected specialist',
+              data: respData,
+              continue: true,
+            },
+            HttpStatus.OK,
+          );
+        }
+
+        /* if (profile.type === '0') {
             const updateProfile = Object.assign(profile, { type: '1' });
             const respData = await this.profileRepository.save(updateProfile);
             return new HttpException(
@@ -220,9 +232,20 @@ export class ProfilesService {
           return new HttpException(
             { message: 'User selected both platforms', continue: true },
             HttpStatus.OK,
-          );
+          ); */
         case 'customer':
-          if (profile.type === '0') {
+          const updateProfile = Object.assign(profile, { type: '2' });
+          const respData = await this.profileRepository.save(updateProfile);
+          return new HttpException(
+            {
+              message: 'User selected customer',
+              data: respData,
+              continue: true,
+            },
+            HttpStatus.OK,
+          );
+
+        /*  if (profile.type === '0') {
             const updateProfile = Object.assign(profile, { type: '2' });
             const respData = await this.profileRepository.save(updateProfile);
             return new HttpException(
@@ -255,7 +278,7 @@ export class ProfilesService {
           return new HttpException(
             { message: 'User selected both platforms', continue: true },
             HttpStatus.OK,
-          );
+          ); */
         default:
           return new HttpException(
             { message: 'Type not valid' },
