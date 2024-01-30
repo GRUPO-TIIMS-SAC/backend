@@ -75,7 +75,7 @@ export class FavoritesUsersService {
           console.log(newFavoriteUser);
           const respData =
             await this.favoritesUsersRepository.save(newFavoriteUser);
-          id_save.push(respData.id);
+          id_save.push(respData.speciality_id);
           respData_array.push(respData);
         }
       }
