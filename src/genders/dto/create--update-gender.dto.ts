@@ -1,3 +1,3 @@
-export interface CreateUpdateGender{
+export class CreateUpdateGender{
     gender: string;
 }

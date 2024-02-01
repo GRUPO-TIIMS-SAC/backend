@@ -1,3 +1,3 @@
-export interface CreateUpdateNationality {
+export class CreateUpdateNationality {
     nationality: string
 }
