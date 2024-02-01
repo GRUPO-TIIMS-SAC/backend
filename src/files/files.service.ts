@@ -3,9 +3,12 @@ import { promisify } from 'util';
 import { Request } from 'express';
 import { writeFile } from 'fs';
 import * as fs from 'fs';
+import * as path from 'path';
 import * as multer from 'multer';
 
 const writeFileAsync = promisify(writeFile);
+const mkdirAsync = promisify(fs.mkdir);
+const uploadDirectory = path.join(__dirname, './uploads/documents_upload');
 
 @Injectable()
 export class FilesService {
@@ -14,7 +17,14 @@ export class FilesService {
   async uploadFileMulterPdf(req: multer.File, id: String, document: String) {
     const file = req;
     const fileName = document + '-' + new Date().getTime() + id + '.pdf';
-    const filePath = './uploads/documents_upload/' + fileName;
+    // const uploadDirectory = path.resolve(__dirname, './uploads/documents_upload');
+    console.log(uploadDirectory)
+    const filePath = path.join(uploadDirectory, fileName);
+
+    // Crear el directorio si no existe
+    if (!fs.existsSync(uploadDirectory)) {
+      await mkdirAsync(uploadDirectory, { recursive: true });
+    }
 
     // Validar que el archivo es de tipo PDF
     if (file.mimetype !== 'application/pdf') {
