@@ -1,9 +1,19 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ExtraDocument } from 'src/entities/extra_documents.entity';
 import { Repository } from 'typeorm';
 import { createExtraDocument } from './dto/create-extra-document.dto';
 import { UsersService } from 'src/users/users.service';
+import * as multer from 'multer';
+import { Request } from 'express';
+import { FilesService } from 'src/files/files.service';
+import { ExtraDocumentsListService } from 'src/extra_documents_list/extra_documents_list.service';
 
 @Injectable()
 export class ExtraDocumentsService {
@@ -11,11 +21,22 @@ export class ExtraDocumentsService {
     @InjectRepository(ExtraDocument)
     private readonly extraDocumentRepository: Repository<ExtraDocument>,
     private readonly userService: UsersService,
+    private readonly filesService: FilesService,
+    private readonly extraDocumentListService: ExtraDocumentsListService,
   ) {}
 
-  async create(token: any, body: createExtraDocument) {
+  async create(token: any, req: multer.File, body: createExtraDocument) {
+    console.log({
+      token,
+      req,
+      body,
+    });
+
     try {
+      //TOKEN
       const tokenDecoded = this.userService.decodeToken(token);
+      let fileName;
+      let documentName;
 
       if (!tokenDecoded.id) {
         return new HttpException(
@@ -23,7 +44,7 @@ export class ExtraDocumentsService {
           HttpStatus.CONFLICT,
         );
       }
-
+      //USER
       const user = await this.userService.findOne(tokenDecoded.id);
       if (user.getStatus() === 404) {
         return new HttpException(
@@ -32,6 +53,19 @@ export class ExtraDocumentsService {
         );
       }
 
+      //LIST DOCUMENTS
+      const listDocuments = await this.extraDocumentListService.getOne(
+        body.document_id,
+      );
+
+      if (listDocuments.getStatus() != 200) {
+        return listDocuments;
+      }
+
+      documentName = listDocuments.getResponse()['data'].document;
+      //
+
+      //VALIDATED DUPLICATE DOCUMENT
       const existDocument = await this.extraDocumentRepository.findOne({
         where: {
           user_id: tokenDecoded.id,
@@ -46,19 +80,50 @@ export class ExtraDocumentsService {
         );
       }
 
+      //UPLOAD FILE
+      const uploadFile = await this.filesService.uploadFileMulterPdf(
+        req,
+        tokenDecoded.id,
+        documentName,
+      );
+
+      if (uploadFile.getStatus() !== 200) return uploadFile;
+
+      const uploadFileResponse = uploadFile.getResponse();
+
+      if (
+        typeof uploadFileResponse === 'object' &&
+        'file_name' in uploadFileResponse
+      ) {
+        fileName = uploadFileResponse.file_name;
+      } else {
+        return new HttpException(
+          {
+            message: 'Error creating extra document',
+            error: uploadFileResponse,
+          },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      //CREATE DOCUMENT
       const newExtraDocument = this.extraDocumentRepository.create({
         ...body,
         user_id: tokenDecoded.id,
+        url: 'documents_upload/' + fileName,
       });
+
       const respData =
         await this.extraDocumentRepository.save(newExtraDocument);
+
       return new HttpException(
         { data: respData, message: 'Extra document created' },
         HttpStatus.CREATED,
       );
     } catch (error) {
+      console.log(error);
       return new HttpException(
-        { message: 'Error creating extra document' },
+        { message: 'Error creating extra document', error: error.message },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -89,7 +154,7 @@ export class ExtraDocumentsService {
         },
       });
 
-      if(extraDocuments.length === 0){
+      if (extraDocuments.length === 0) {
         return new HttpException(
           { message: 'No extra documents found' },
           HttpStatus.NOT_FOUND,

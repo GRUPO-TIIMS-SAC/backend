@@ -19,6 +19,8 @@ import { UnitsModule } from './units/units.module';
 import { StatusRequestModule } from './status_request/status_request.module';
 import { FavoritesUsersModule } from './favorites_users/favorites_users.module';
 import { ExtraDocumentsModule } from './extra_documents/extra_documents.module';
+import { FilesModule } from './files/files.module';
+import { ExtraDocumentsListModule } from './extra_documents_list/extra_documents_list.module';
 
 @Module({
   imports: [
@@ -48,6 +50,8 @@ import { ExtraDocumentsModule } from './extra_documents/extra_documents.module';
     StatusRequestModule,
     FavoritesUsersModule,
     ExtraDocumentsModule,
+    FilesModule,
+    ExtraDocumentsListModule,
   ],
   controllers: [AppController],
   providers: [AppService],
