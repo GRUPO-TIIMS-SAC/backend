@@ -33,6 +33,14 @@ export class ExtraDocumentsService {
     });
 
     try {
+      //VALID BODY
+      if(body.document_id != 'cv' && body.document_id != 'certi-joven'){
+        return new HttpException(
+          { message: 'Document type invalid' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
       //TOKEN
       const tokenDecoded = this.userService.decodeToken(token);
       let fileName;
@@ -55,7 +63,7 @@ export class ExtraDocumentsService {
 
       //LIST DOCUMENTS
       const listDocuments = await this.extraDocumentListService.getOne(
-        body.document_id,
+        body.document_id === 'cv' ? 1 : 2,
       );
 
       if (listDocuments.getStatus() != 200) {
@@ -69,7 +77,7 @@ export class ExtraDocumentsService {
       const existDocument = await this.extraDocumentRepository.findOne({
         where: {
           user_id: tokenDecoded.id,
-          document_id: body.document_id,
+          document_id: body.document_id === 'cv' ? 1 : 2,
         },
       });
 
@@ -108,7 +116,7 @@ export class ExtraDocumentsService {
 
       //CREATE DOCUMENT
       const newExtraDocument = this.extraDocumentRepository.create({
-        ...body,
+        document_id: body.document_id === 'cv' ? 1 : 2,
         user_id: tokenDecoded.id,
         url: 'documents_upload/' + fileName,
       });
