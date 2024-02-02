@@ -1,3 +1,3 @@
 export class createExtraDocument {
-    document_id: number;
+    document_id: String;
 }
