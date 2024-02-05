@@ -8,6 +8,7 @@ import { ValidateUserProcessStatusDto } from './dto/validate-user-process-status
 import { changeStatusUserDto } from './dto/change-status-user.dto';
 import { FavoritesUsersService } from 'src/favorites_users/favorites_users.service';
 import { ExtraDocumentsService } from 'src/extra_documents/extra_documents.service';
+import { DataSpecilistDto } from './dto/data-specilist.dato';
 
 @Injectable()
 export class ProfilesService {
@@ -116,6 +117,33 @@ export class ProfilesService {
           HttpStatus.NOT_FOUND,
         );
       }
+      if (
+        profiles.type === '1' &&
+        favoriteSpecialities.getResponse()['dataSpecialist'].length === 0
+      ) {
+        return new HttpException(
+          {
+            message: 'User has not selected favorite specialities',
+            step: 'favorites',
+            first_time: true,
+          },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      if (
+        profiles.type === '2' &&
+        favoriteSpecialities.getResponse()['dataCustomer'].length === 0
+      ) {
+        return new HttpException(
+          {
+            message: 'User has not selected favorite specialities',
+            step: 'favorites',
+            first_time: true,
+          },
+          HttpStatus.NOT_FOUND,
+        );
+      }
 
       //VALIDATE IF USER HAS SELECTED EXTRA DOCUMENTS
       if (profiles.type === '1' || profiles.type === '3') {
@@ -198,41 +226,6 @@ export class ProfilesService {
             HttpStatus.OK,
           );
         }
-
-        /* if (profile.type === '0') {
-            const updateProfile = Object.assign(profile, { type: '1' });
-            const respData = await this.profileRepository.save(updateProfile);
-            return new HttpException(
-              {
-                message: 'User selected specialist',
-                data: respData,
-                continue: true,
-              },
-              HttpStatus.OK,
-            );
-          }
-          if (profile.type === '1') {
-            return new HttpException(
-              { message: 'User already selected specialist', continue: true },
-              HttpStatus.OK,
-            );
-          }
-          if (profile.type === '2') {
-            const updateProfile = Object.assign(profile, { type: '3' });
-            const respData = await this.profileRepository.save(updateProfile);
-            return new HttpException(
-              {
-                message: 'User selected both platforms',
-                data: respData,
-                continue: true,
-              },
-              HttpStatus.OK,
-            );
-          }
-          return new HttpException(
-            { message: 'User selected both platforms', continue: true },
-            HttpStatus.OK,
-          ); */
         case 'customer':
           const updateProfile = Object.assign(profile, { type: '2' });
           const respData = await this.profileRepository.save(updateProfile);
@@ -244,41 +237,6 @@ export class ProfilesService {
             },
             HttpStatus.OK,
           );
-
-        /*  if (profile.type === '0') {
-            const updateProfile = Object.assign(profile, { type: '2' });
-            const respData = await this.profileRepository.save(updateProfile);
-            return new HttpException(
-              {
-                message: 'User selected customer',
-                data: respData,
-                continue: true,
-              },
-              HttpStatus.OK,
-            );
-          }
-          if (profile.type === '2') {
-            return new HttpException(
-              { message: 'User already selected customer', continue: true },
-              HttpStatus.OK,
-            );
-          }
-          if (profile.type === '1') {
-            const updateProfile = Object.assign(profile, { type: '3' });
-            const respData = await this.profileRepository.save(updateProfile);
-            return new HttpException(
-              {
-                message: 'User selected both platforms',
-                data: respData,
-                continue: true,
-              },
-              HttpStatus.OK,
-            );
-          }
-          return new HttpException(
-            { message: 'User selected both platforms', continue: true },
-            HttpStatus.OK,
-          ); */
         default:
           return new HttpException(
             { message: 'Type not valid' },
@@ -295,5 +253,46 @@ export class ProfilesService {
 
   getProfiles() {
     return this.profileRepository.find();
+  }
+
+  async addDataSpecialist(token: any, body: DataSpecilistDto) {
+    try {
+      const tokenDecoded = this.userService.decodeToken(token);
+
+      if (!tokenDecoded.id) {
+        return new HttpException(
+          { message: 'Token wrong' },
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      const profile = await this.profileRepository.findOne({
+        where: {
+          user_id: tokenDecoded.id,
+        },
+      });
+
+      if (!profile) {
+        return new HttpException(
+          { message: 'Profile not found' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const updateProfile = Object.assign(profile, body);
+      const respData = await this.profileRepository.save(updateProfile);
+      return new HttpException(
+        {
+          message: 'Data specialist added',
+          data: respData,
+        },
+        HttpStatus.OK,
+      );
+    } catch (error) {
+      return new HttpException(
+        { message: 'Error adding data specialist' },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

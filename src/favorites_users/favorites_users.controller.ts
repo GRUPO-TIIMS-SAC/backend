@@ -21,7 +21,7 @@ export class FavoritesUsersController {
   @ApiBearerAuth()
   @ApiHeader({ name: 'Authorization', description: 'Authorization token' })
   @Get('get-favorites-users')
-  async getFavoritesUsers(@Headers('authorization') token: any) {
+  async getFavoritesUsers(@Headers('authorization') token: any){
     return this.favoritesUsersService.getFavoritesByUser(token);
   }
 }
