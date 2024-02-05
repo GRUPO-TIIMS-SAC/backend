@@ -4,6 +4,7 @@ import { FavoritesUsers } from 'src/entities/favorites_users.entity';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { ICreateFavoriteUser } from './dto/create-favorite_user.dto';
+import e from 'express';
 
 @Injectable()
 export class FavoritesUsersService {
@@ -54,7 +55,7 @@ export class FavoritesUsersService {
       }
       console.log(body.specialities_id);
       for (let i = 0; i < body.specialities_id.length; i++) {
-        console.log(body.specialities_id[i])
+        console.log(body.specialities_id[i]);
         const existsFavoriteUser = await this.favoritesUsersRepository.findOne({
           where: {
             user_id: tokenDecoded.id,
@@ -89,7 +90,7 @@ export class FavoritesUsersService {
         HttpStatus.CREATED,
       );
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return new HttpException(
         { message: 'Error creating favorite user' },
         HttpStatus.CONFLICT,
@@ -139,7 +140,15 @@ export class FavoritesUsersService {
       }
 
       return new HttpException(
-        { dataCustomer: favoritesCustomer.map(element => {return element.speciality_id}), dataSpecialist: favoritesSpecialist, message: 'Favorites selected' },
+        {
+          dataCustomer: favoritesCustomer.map((element) => {
+            return element.speciality_id;
+          }),
+          dataSpecialist: favoritesSpecialist.map((element) => {
+            return element.speciality_id;
+          }),
+          message: 'Favorites selected',
+        },
         HttpStatus.OK,
       );
     } catch (error) {
