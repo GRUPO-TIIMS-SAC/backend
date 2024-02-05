@@ -117,13 +117,21 @@ export class FavoritesUsersService {
         );
       }
 
-      const favorites = await this.favoritesUsersRepository.find({
+      const favoritesCustomer = await this.favoritesUsersRepository.find({
         where: {
           user_id: tokenDecoded.id,
+          type_platform: '1',
         },
       });
 
-      if (favorites.length === 0) {
+      const favoritesSpecialist = await this.favoritesUsersRepository.find({
+        where: {
+          user_id: tokenDecoded.id,
+          type_platform: '0',
+        },
+      });
+
+      if (favoritesCustomer.length === 0 && favoritesSpecialist.length === 0) {
         return new HttpException(
           { message: 'Favorites not found' },
           HttpStatus.NOT_FOUND,
@@ -131,7 +139,7 @@ export class FavoritesUsersService {
       }
 
       return new HttpException(
-        { data: favorites, message: 'Favorites selected' },
+        { dataCustomer: favoritesCustomer.map(element => {return element.speciality_id}), dataSpecialist: favoritesSpecialist, message: 'Favorites selected' },
         HttpStatus.OK,
       );
     } catch (error) {

@@ -18,6 +18,7 @@ import {
 } from '@nestjs/swagger';
 import { ValidateUserProcessStatusDto } from './dto/validate-user-process-status.dto';
 import { changeStatusUserDto } from './dto/change-status-user.dto';
+import { DataSpecilistDto } from './dto/data-specilist.dato';
 
 @ApiTags('Profiles')
 @Controller('profiles')
@@ -49,5 +50,10 @@ export class ProfilesController {
   @Get()
   async getProfile() {
     return this.profilesService.getProfiles();
+  }
+
+  @Post('data-specialist')
+  async dataSpecialist(@Headers('authorization') token: any, @Body() body: DataSpecilistDto) {
+    return this.profilesService.addDataSpecialist(token, body);
   }
 }

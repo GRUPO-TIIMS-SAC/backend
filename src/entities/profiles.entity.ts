@@ -65,4 +65,10 @@ import { User } from './user.entity';
 
     @Column({ length: 35, nullable: false})
     number_document: string;
+
+    @Column({ length: 40, nullable: true})
+    occupancy: string;
+
+    @Column({ type: 'char', length: 1, nullable: true})
+    work_mode: string;
 }
