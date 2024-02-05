@@ -18,7 +18,7 @@ import {
 } from '@nestjs/swagger';
 import { ValidateUserProcessStatusDto } from './dto/validate-user-process-status.dto';
 import { changeStatusUserDto } from './dto/change-status-user.dto';
-import { DataSpecilistDto } from './dto/data-specilist.dato';
+import { DataSpecilistDto } from './dto/data-specilist.dto';
 
 @ApiTags('Profiles')
 @Controller('profiles')

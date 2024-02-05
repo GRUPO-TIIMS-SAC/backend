@@ -8,7 +8,7 @@ import { ValidateUserProcessStatusDto } from './dto/validate-user-process-status
 import { changeStatusUserDto } from './dto/change-status-user.dto';
 import { FavoritesUsersService } from 'src/favorites_users/favorites_users.service';
 import { ExtraDocumentsService } from 'src/extra_documents/extra_documents.service';
-import { DataSpecilistDto } from './dto/data-specilist.dato';
+import { DataSpecilistDto } from './dto/data-specilist.dto';
 
 @Injectable()
 export class ProfilesService {
