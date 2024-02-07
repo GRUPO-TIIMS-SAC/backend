@@ -5,25 +5,33 @@ import { writeFile } from 'fs';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as multer from 'multer';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ImgsFiles } from 'src/entities/img_files.entity';
+import { Repository } from 'typeorm';
+import { DeleteFileDto } from './dto/delete-file.dto';
 
 const writeFileAsync = promisify(writeFile);
 const mkdirAsync = promisify(fs.mkdir);
-const uploadDirectory = path.join(__dirname, './uploads/documents_upload');
+const uploadDirectoryPdf = path.join(__dirname, './uploads/documents_upload');
+const uploadDirectoryImg = path.join(__dirname, './uploads/images_upload');
 
 @Injectable()
 export class FilesService {
-  constructor() {}
+  constructor(
+    @InjectRepository(ImgsFiles)
+    private imgsFilesRepository: Repository<ImgsFiles>,
+  ) {}
 
   async uploadFileMulterPdf(req: multer.File, id: String, document: String) {
     const file = req;
     const fileName = document + '-' + new Date().getTime() + id + '.pdf';
     // const uploadDirectory = path.resolve(__dirname, './uploads/documents_upload');
-    console.log(uploadDirectory)
-    const filePath = path.join(uploadDirectory, fileName);
+    console.log(uploadDirectoryPdf);
+    const filePath = path.join(uploadDirectoryPdf, fileName);
 
     // Crear el directorio si no existe
-    if (!fs.existsSync(uploadDirectory)) {
-      await mkdirAsync(uploadDirectory, { recursive: true });
+    if (!fs.existsSync(uploadDirectoryPdf)) {
+      await mkdirAsync(uploadDirectoryPdf, { recursive: true });
     }
 
     // Validar que el archivo es de tipo PDF
@@ -37,7 +45,7 @@ export class FilesService {
     // Validar que el tamaño del archivo no supera 1MB
     if (file.size > 1024 * 1024) {
       return new HttpException(
-        { message: 'Max size 1Mb. File too large' },
+        { message: 'Tamaño máximo 1Mb' },
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -57,75 +65,66 @@ export class FilesService {
     }
   }
 
-  async uploadFile(req: Request, id: String, document: String) {
-    console.log(req.is('multipart/form-data'));
+  async uploadFileMulterImage(req: multer.File) {
+    const file = req;
+    console.log(req);
+    console.log(file.mimetype);
+    const extension = file.mimeType.split('/')[1];
+    const fileName = new Date().getTime().toString() + '.' + extension;
+    // const uploadDirectory = path.resolve(__dirname, './uploads/documents_upload');
+    console.log(uploadDirectoryImg);
+    const filePath = path.join(uploadDirectoryImg, fileName);
+
+    // Crear el directorio si no existe
+    if (!fs.existsSync(uploadDirectoryImg)) {
+      await mkdirAsync(uploadDirectoryImg, { recursive: true });
+    }
+
+    // Validar que el archivo es de tipo PDF
+    if (file.mimetype !== 'image/png' && file.mimetype !== 'image/jpg') {
+      return new HttpException(
+        { message: 'Invalid file type. Only PNG and JPG is allowed' },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // Validar que el tamaño del archivo no supera 1MB
+    if (file.size > 1024 * 1024 * 0.5) {
+      return new HttpException(
+        { message: 'Tamaño máximo 500Kb' },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     try {
-      if (!req.is('multipart/form-data')) {
-        return new HttpException(
-          {
-            message:
-              'Invalid request type. Only multipart/form-data is allowed',
-          },
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
-      const storage = multer.diskStorage({
-        destination: './uploads/documents',
-        filename: (req, file, cb) => {
-          if (file.mimetype !== 'application/pdf') {
-            return cb(
-              new HttpException(
-                {
-                  message: 'Invalid file type. Only PDF is allowed',
-                },
-                HttpStatus.BAD_REQUEST,
-              ),
-              false,
-            );
-          }
-
-          cb(null, document + '-' + new Date().getTime() + id + '.pdf');
-        },
-      });
-
-      const upload = multer({
-        storage,
-        limits: {
-          fileSize: 1024 * 1024 * 1,
-        },
-      }).single('file');
-
-      return new Promise((resolve, _rej) => {
-        upload(req, undefined, (err) => {
-          if (
-            err instanceof multer.MulterError &&
-            err.code === 'LIMIT_FILE_SIZE'
-          ) {
-            resolve(
-              new HttpException(
-                { message: 'Max size 1Mb. File to large' },
-                HttpStatus.BAD_REQUEST,
-              ),
-            );
-          } else if (err) {
-            resolve(err);
-          } else {
-            resolve(
-              new HttpException(
-                { message: 'File uploaded', route: req['file'].filename },
-                HttpStatus.OK,
-              ),
-            );
-          }
-        });
-      });
+      await writeFileAsync(filePath, file.buffer);
+      return new HttpException(
+        { message: 'File uploaded', file_name: fileName },
+        HttpStatus.OK,
+      );
+      // ...
     } catch (error) {
       return new HttpException(
-        { message: 'Error uploading file' },
+        { message: 'Error creating extra document', error: error.message },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  async deleteStorageFile(body: DeleteFileDto) {
+    // Define la ruta al archivo que quieres eliminar
+    const filePath = path.join(__dirname, 'uploads', body.dir, body.file);
+
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        return new HttpException(
+          { message: 'Error deleting file', error: err.message },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      } else {
+        return new HttpException({ message: 'File deleted' }, HttpStatus.OK);
+      }
+    });
   }
 
   getFilesInDirectory(directory: string): Promise<string[]> {

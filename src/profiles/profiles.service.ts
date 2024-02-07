@@ -1,14 +1,17 @@
+import { changeStatusUserDto } from './dto/change-status-user.dto';
+import { CreateProfileDto } from './dto/create-profile.dto';
+import { DataSpecilistDto } from './dto/data-specilist.dto';
+import { ExtraDocumentsService } from 'src/extra_documents/extra_documents.service';
+import { FavoritesUsersService } from 'src/favorites_users/favorites_users.service';
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Profile } from 'src/entities/profiles.entity';
 import { QueryFailedError, Repository } from 'typeorm';
-import { CreateProfileDto } from './dto/create-profile.dto';
 import { UsersService } from 'src/users/users.service';
 import { ValidateUserProcessStatusDto } from './dto/validate-user-process-status.dto';
-import { changeStatusUserDto } from './dto/change-status-user.dto';
-import { FavoritesUsersService } from 'src/favorites_users/favorites_users.service';
-import { ExtraDocumentsService } from 'src/extra_documents/extra_documents.service';
-import { DataSpecilistDto } from './dto/data-specilist.dto';
+import * as multer from 'multer';
+import { FilesService } from 'src/files/files.service';
+import { DeleteFileDto } from 'src/files/dto/delete-file.dto';
 
 @Injectable()
 export class ProfilesService {
@@ -18,6 +21,7 @@ export class ProfilesService {
     private readonly userService: UsersService,
     private readonly favoriteUsersService: FavoritesUsersService,
     private readonly extraDocumentsService: ExtraDocumentsService,
+    private readonly fileService: FilesService,
   ) {}
 
   async createProfile(token: any, profile: CreateProfileDto) {
@@ -291,6 +295,83 @@ export class ProfilesService {
     } catch (error) {
       return new HttpException(
         { message: 'Error adding data specialist' },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async uploadProfilePhoto(token: any, req: multer.File) {
+    try {
+      const tokenDecoded = this.userService.decodeToken(token);
+      let route;
+
+      if (!tokenDecoded.id) {
+        return new HttpException(
+          { message: 'Token wrong' },
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      const profile = await this.profileRepository.findOne({
+        where: {
+          user_id: tokenDecoded.id,
+        },
+      });
+
+      if (!profile) {
+        return new HttpException(
+          { message: 'Profile not found' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      //UPDALOAD IMAGE
+      const file = await this.fileService.uploadFileMulterImage(req);
+
+      if (file.getStatus() !== 200) {
+        return file;
+      }
+
+      const fileResp = file.getResponse();
+      if (
+        typeof fileResp === 'object' &&
+        'file_name' in fileResp
+      ) {
+        route = fileResp.file_name;
+      } else {
+        return new HttpException(
+          {
+            message: 'Error creating image',
+            error: fileResp,
+          },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      //DELETE OLD PROFILE PHOTO
+      const body: DeleteFileDto ={
+        dir: 'images_upload',
+        file: profile.profile_photo
+      }
+
+      await this.fileService.deleteStorageFile(body);
+
+      //UPDATE PROFILE
+      const updateProfile = Object.assign(profile, {
+        profile_photo: route,
+      });
+      const respData = await this.profileRepository.save(updateProfile);
+
+      return new HttpException(
+        {
+          message: 'Profile photo added',
+          data: respData,
+        },
+        HttpStatus.OK,
+      );
+    } catch (error) {
+      return new HttpException(
+        { message: 'Error adding profile photo' },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
