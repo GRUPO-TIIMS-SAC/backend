@@ -71,4 +71,7 @@ import { User } from './user.entity';
 
     @Column({ type: 'char', length: 1, nullable: true})
     work_mode: string;
+
+    @Column({ length: 250, nullable: true})
+    own_description: string;
 }

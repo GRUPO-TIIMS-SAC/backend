@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Headers,
+  Patch,
   Post,
   UploadedFile,
   UseGuards,
@@ -22,6 +23,7 @@ import { ValidateUserProcessStatusDto } from './dto/validate-user-process-status
 import { changeStatusUserDto } from './dto/change-status-user.dto';
 import { DataSpecilistDto } from './dto/data-specilist.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @ApiTags('Profiles')
 @Controller('profiles')
@@ -78,5 +80,13 @@ export class ProfilesController {
   @Get('photo')
   async getProfilePhoto(@Headers('authorization') token: any) {
     return this.profilesService.getProfilePhoto(token);
+  }
+
+  @Patch('update-profile')
+  async updateProfile(
+    @Headers('authorization') token: any,
+    @Body() body: UpdateProfileDto,
+  ) {
+    return this.profilesService.updateProfile(token, body);
   }
 }

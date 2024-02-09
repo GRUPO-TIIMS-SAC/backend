@@ -13,6 +13,7 @@ import * as multer from 'multer';
 import { FilesService } from 'src/files/files.service';
 import { DeleteFileDto } from 'src/files/dto/delete-file.dto';
 import { Utils } from 'src/utils/utils';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class ProfilesService {
@@ -412,13 +413,54 @@ export class ProfilesService {
       return new HttpException(
         {
           message: 'Profile photo found',
-          data: new Utils().route()+'/images_upload/' + profile.profile_photo,
+          data: new Utils().route() + '/images_upload/' + profile.profile_photo,
         },
         HttpStatus.OK,
       );
     } catch (error) {
       return new HttpException(
         { message: 'Error getting profile photo' },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async updateProfile(token: any, body: UpdateProfileDto) {
+    try {
+      const tokenDecoded = this.userService.decodeToken(token);
+
+      if (!tokenDecoded.id) {
+        return new HttpException(
+          { message: 'Token wrong' },
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      const profile = await this.profileRepository.findOne({
+        where: {
+          user_id: tokenDecoded.id,
+        },
+      });
+
+      if (!profile) {
+        return new HttpException(
+          { message: 'Profile not found' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const updateProfile = Object.assign(profile, body);
+      const respData = await this.profileRepository.save(updateProfile);
+      return new HttpException(
+        {
+          message: 'Profile updated',
+          data: respData,
+        },
+        HttpStatus.OK,
+      );
+    } catch (error) {
+      return new HttpException(
+        { message: 'Error updating profile' },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
