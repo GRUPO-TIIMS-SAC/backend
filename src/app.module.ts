@@ -21,6 +21,7 @@ import { FavoritesUsersModule } from './favorites_users/favorites_users.module';
 import { ExtraDocumentsModule } from './extra_documents/extra_documents.module';
 import { FilesModule } from './files/files.module';
 import { ExtraDocumentsListModule } from './extra_documents_list/extra_documents_list.module';
+import { ImgsFilesModule } from './imgs_files/imgs_files.module';
 
 @Module({
   imports: [
@@ -52,8 +53,9 @@ import { ExtraDocumentsListModule } from './extra_documents_list/extra_documents
     ExtraDocumentsModule,
     FilesModule,
     ExtraDocumentsListModule,
+    ImgsFilesModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ],
 })
 export class AppModule {}

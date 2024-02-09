@@ -1,13 +1,17 @@
+import { changeStatusUserDto } from './dto/change-status-user.dto';
+import { CreateProfileDto } from './dto/create-profile.dto';
+import { DataSpecilistDto } from './dto/data-specilist.dto';
+import { ExtraDocumentsService } from 'src/extra_documents/extra_documents.service';
+import { FavoritesUsersService } from 'src/favorites_users/favorites_users.service';
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Profile } from 'src/entities/profiles.entity';
 import { QueryFailedError, Repository } from 'typeorm';
-import { CreateProfileDto } from './dto/create-profile.dto';
 import { UsersService } from 'src/users/users.service';
 import { ValidateUserProcessStatusDto } from './dto/validate-user-process-status.dto';
-import { changeStatusUserDto } from './dto/change-status-user.dto';
-import { FavoritesUsersService } from 'src/favorites_users/favorites_users.service';
-import { ExtraDocumentsService } from 'src/extra_documents/extra_documents.service';
+import * as multer from 'multer';
+import { FilesService } from 'src/files/files.service';
+import { DeleteFileDto } from 'src/files/dto/delete-file.dto';
 
 @Injectable()
 export class ProfilesService {
@@ -17,6 +21,7 @@ export class ProfilesService {
     private readonly userService: UsersService,
     private readonly favoriteUsersService: FavoritesUsersService,
     private readonly extraDocumentsService: ExtraDocumentsService,
+    private readonly fileService: FilesService,
   ) {}
 
   async createProfile(token: any, profile: CreateProfileDto) {
@@ -116,6 +121,33 @@ export class ProfilesService {
           HttpStatus.NOT_FOUND,
         );
       }
+      if (
+        profiles.type === '1' &&
+        favoriteSpecialities.getResponse()['dataSpecialist'].length === 0
+      ) {
+        return new HttpException(
+          {
+            message: 'User has not selected favorite specialities',
+            step: 'favorites',
+            first_time: true,
+          },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      if (
+        profiles.type === '2' &&
+        favoriteSpecialities.getResponse()['dataCustomer'].length === 0
+      ) {
+        return new HttpException(
+          {
+            message: 'User has not selected favorite specialities',
+            step: 'favorites',
+            first_time: true,
+          },
+          HttpStatus.NOT_FOUND,
+        );
+      }
 
       //VALIDATE IF USER HAS SELECTED EXTRA DOCUMENTS
       if (profiles.type === '1' || profiles.type === '3') {
@@ -198,41 +230,6 @@ export class ProfilesService {
             HttpStatus.OK,
           );
         }
-
-        /* if (profile.type === '0') {
-            const updateProfile = Object.assign(profile, { type: '1' });
-            const respData = await this.profileRepository.save(updateProfile);
-            return new HttpException(
-              {
-                message: 'User selected specialist',
-                data: respData,
-                continue: true,
-              },
-              HttpStatus.OK,
-            );
-          }
-          if (profile.type === '1') {
-            return new HttpException(
-              { message: 'User already selected specialist', continue: true },
-              HttpStatus.OK,
-            );
-          }
-          if (profile.type === '2') {
-            const updateProfile = Object.assign(profile, { type: '3' });
-            const respData = await this.profileRepository.save(updateProfile);
-            return new HttpException(
-              {
-                message: 'User selected both platforms',
-                data: respData,
-                continue: true,
-              },
-              HttpStatus.OK,
-            );
-          }
-          return new HttpException(
-            { message: 'User selected both platforms', continue: true },
-            HttpStatus.OK,
-          ); */
         case 'customer':
           const updateProfile = Object.assign(profile, { type: '2' });
           const respData = await this.profileRepository.save(updateProfile);
@@ -244,41 +241,6 @@ export class ProfilesService {
             },
             HttpStatus.OK,
           );
-
-        /*  if (profile.type === '0') {
-            const updateProfile = Object.assign(profile, { type: '2' });
-            const respData = await this.profileRepository.save(updateProfile);
-            return new HttpException(
-              {
-                message: 'User selected customer',
-                data: respData,
-                continue: true,
-              },
-              HttpStatus.OK,
-            );
-          }
-          if (profile.type === '2') {
-            return new HttpException(
-              { message: 'User already selected customer', continue: true },
-              HttpStatus.OK,
-            );
-          }
-          if (profile.type === '1') {
-            const updateProfile = Object.assign(profile, { type: '3' });
-            const respData = await this.profileRepository.save(updateProfile);
-            return new HttpException(
-              {
-                message: 'User selected both platforms',
-                data: respData,
-                continue: true,
-              },
-              HttpStatus.OK,
-            );
-          }
-          return new HttpException(
-            { message: 'User selected both platforms', continue: true },
-            HttpStatus.OK,
-          ); */
         default:
           return new HttpException(
             { message: 'Type not valid' },
@@ -295,5 +257,123 @@ export class ProfilesService {
 
   getProfiles() {
     return this.profileRepository.find();
+  }
+
+  async addDataSpecialist(token: any, body: DataSpecilistDto) {
+    try {
+      const tokenDecoded = this.userService.decodeToken(token);
+
+      if (!tokenDecoded.id) {
+        return new HttpException(
+          { message: 'Token wrong' },
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      const profile = await this.profileRepository.findOne({
+        where: {
+          user_id: tokenDecoded.id,
+        },
+      });
+
+      if (!profile) {
+        return new HttpException(
+          { message: 'Profile not found' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const updateProfile = Object.assign(profile, body);
+      const respData = await this.profileRepository.save(updateProfile);
+      return new HttpException(
+        {
+          message: 'Data specialist added',
+          data: respData,
+        },
+        HttpStatus.OK,
+      );
+    } catch (error) {
+      return new HttpException(
+        { message: 'Error adding data specialist' },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async uploadProfilePhoto(token: any, req: multer.File) {
+    try {
+      const tokenDecoded = this.userService.decodeToken(token);
+      let route;
+
+      if (!tokenDecoded.id) {
+        return new HttpException(
+          { message: 'Token wrong' },
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      const profile = await this.profileRepository.findOne({
+        where: {
+          user_id: tokenDecoded.id,
+        },
+      });
+
+      if (!profile) {
+        return new HttpException(
+          { message: 'Profile not found' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      //UPDALOAD IMAGE
+      const file = await this.fileService.uploadFileMulterImage(req);
+
+      if (file.getStatus() !== 200) {
+        return file;
+      }
+
+      const fileResp = file.getResponse();
+      if (
+        typeof fileResp === 'object' &&
+        'file_name' in fileResp
+      ) {
+        route = fileResp.file_name;
+      } else {
+        return new HttpException(
+          {
+            message: 'Error creating image',
+            error: fileResp,
+          },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      //DELETE OLD PROFILE PHOTO
+      const body: DeleteFileDto ={
+        dir: 'images_upload',
+        file: profile.profile_photo
+      }
+
+      await this.fileService.deleteStorageFile(body);
+
+      //UPDATE PROFILE
+      const updateProfile = Object.assign(profile, {
+        profile_photo: route,
+      });
+      const respData = await this.profileRepository.save(updateProfile);
+
+      return new HttpException(
+        {
+          message: 'Profile photo added',
+          data: respData,
+        },
+        HttpStatus.OK,
+      );
+    } catch (error) {
+      return new HttpException(
+        { message: 'Error adding profile photo' },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
