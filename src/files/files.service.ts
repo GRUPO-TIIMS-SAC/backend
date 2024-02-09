@@ -90,12 +90,13 @@ export class FilesService {
     }
 
     // Validar que el archivo es de tipo PDF
-    if (file.mimetype !== 'image/png' && file.mimetype !== 'image/jpg') {
+    //TODO VALIDAR MÁS ADELANTE
+    /* if (file.mimetype !== 'image/png' && file.mimetype !== 'image/jpg') {
       return new HttpException(
         { message: 'Invalid file type. Only PNG and JPG is allowed' },
         HttpStatus.BAD_REQUEST,
       );
-    }
+    } */
 
     // Validar que el tamaño del archivo no supera 1MB
     if (file.size > 1024 * 1024 * 0.5) {
