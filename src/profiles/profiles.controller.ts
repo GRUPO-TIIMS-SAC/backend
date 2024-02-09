@@ -74,4 +74,9 @@ export class ProfilesController {
   ) {
     return this.profilesService.uploadProfilePhoto(token, file);
   }
+
+  @Get('photo')
+  async getProfilePhoto(@Headers('authorization') token: any) {
+    return this.profilesService.getProfilePhoto(token);
+  }
 }
