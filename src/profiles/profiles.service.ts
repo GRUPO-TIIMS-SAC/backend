@@ -333,10 +333,7 @@ export class ProfilesService {
       }
 
       const fileResp = file.getResponse();
-      if (
-        typeof fileResp === 'object' &&
-        'file_name' in fileResp
-      ) {
+      if (typeof fileResp === 'object' && 'file_name' in fileResp) {
         route = fileResp.file_name;
       } else {
         return new HttpException(
@@ -349,12 +346,14 @@ export class ProfilesService {
       }
 
       //DELETE OLD PROFILE PHOTO
-      const body: DeleteFileDto ={
-        dir: 'images_upload',
-        file: profile.profile_photo
-      }
+      if (profile.profile_photo !== null) {
+        const body: DeleteFileDto = {
+          dir: 'images_upload',
+          file: profile.profile_photo,
+        };
 
-      await this.fileService.deleteStorageFile(body);
+        await this.fileService.deleteStorageFile(body);
+      }
 
       //UPDATE PROFILE
       const updateProfile = Object.assign(profile, {
@@ -370,8 +369,9 @@ export class ProfilesService {
         HttpStatus.OK,
       );
     } catch (error) {
+      console.log(error);
       return new HttpException(
-        { message: 'Error adding profile photo' },
+        { message: 'Error adding profile photo', error: error.message },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

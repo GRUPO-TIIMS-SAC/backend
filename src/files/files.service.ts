@@ -67,13 +67,22 @@ export class FilesService {
 
   async uploadFileMulterImage(req: multer.File) {
     const file = req;
+    let extension;
     console.log(req);
     console.log(file.mimetype);
-    const extension = file.mimeType.split('/')[1];
+
+    if(file.mimeType){
+      extension = file.mimeType.split('/')[1];
+      console.log(extension);
+    }else{
+      extension = 'png';
+    }
+
     const fileName = new Date().getTime().toString() + '.' + extension;
     // const uploadDirectory = path.resolve(__dirname, './uploads/documents_upload');
-    console.log(uploadDirectoryImg);
+    console.log(fileName);
     const filePath = path.join(uploadDirectoryImg, fileName);
+    console.log(filePath);
 
     // Crear el directorio si no existe
     if (!fs.existsSync(uploadDirectoryImg)) {
@@ -104,6 +113,7 @@ export class FilesService {
       );
       // ...
     } catch (error) {
+      console.log(error)
       return new HttpException(
         { message: 'Error creating extra document', error: error.message },
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -114,9 +124,11 @@ export class FilesService {
   async deleteStorageFile(body: DeleteFileDto) {
     // Define la ruta al archivo que quieres eliminar
     const filePath = path.join(__dirname, 'uploads', body.dir, body.file);
+    console.log(filePath);
 
     fs.unlink(filePath, (err) => {
       if (err) {
+        console.log(err);
         return new HttpException(
           { message: 'Error deleting file', error: err.message },
           HttpStatus.INTERNAL_SERVER_ERROR,
