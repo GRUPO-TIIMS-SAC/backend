@@ -89,4 +89,9 @@ export class ProfilesController {
   ) {
     return this.profilesService.updateProfile(token, body);
   }
+
+  @Get('get-profile')
+  async getProfileUser(@Headers('authorization') token: any) {
+    return this.profilesService.getProfile(token);
+  }
 }

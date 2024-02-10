@@ -379,6 +379,56 @@ export class ProfilesService {
     }
   }
 
+  async getProfile(token: any) {
+    try {
+      const tokenDecoded = this.userService.decodeToken(token);
+
+      if (!tokenDecoded.id) {
+        return new HttpException(
+          { message: 'Token wrong' },
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      const userData = await this.userService.findOne(tokenDecoded.id);
+
+      if(userData.getStatus() !== 200){
+        return userData;
+      }
+
+      const profile = await this.profileRepository.findOne({
+        where: {
+          user_id: tokenDecoded.id,
+        },
+      });
+
+      if (!profile) {
+        return new HttpException(
+          { message: 'Profile not found' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      return new HttpException(
+        {
+          message: 'Profile found',
+          data: {
+            ...profile,
+            profile_photo: new Utils().route() + '/images_upload/' + profile.profile_photo,
+            name: userData.getResponse()['data'].fullname,
+            email: userData.getResponse()['data'].email,
+          },
+        },
+        HttpStatus.OK,
+      );
+    } catch (error) {
+      return new HttpException(
+        { message: 'Error getting profile' },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   async getProfilePhoto(token: any) {
     try {
       const tokenDecoded = this.userService.decodeToken(token);
