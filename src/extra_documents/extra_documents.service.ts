@@ -90,15 +90,7 @@ export class ExtraDocumentsService {
       //   );
       // }}
 
-      if (existDocument) {
-        const body: DeleteFileDto = {
-          dir: 'documents_upload',
-          file: existDocument.url,
-        };
-
-        await this.filesService.deleteStorageFile(body);
-      }
-
+      
       //UPLOAD FILE
       const uploadFile = await this.filesService.uploadFileMulterPdf(
         req,
@@ -124,6 +116,26 @@ export class ExtraDocumentsService {
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
+
+      //UPDATE DOCUMENT
+      if (existDocument) {
+        const body: DeleteFileDto = {
+          dir: 'documents_upload',
+          file: existDocument.url,
+        };
+
+        await this.filesService.deleteStorageFile(body);
+
+        const updateExtraDocument = Object.assign(existDocument, {
+          url: fileName,
+        });
+        const respData = await this.extraDocumentRepository.save(updateExtraDocument);
+        return new HttpException(
+          { data: respData, message: 'Extra document updated' },
+          HttpStatus.CREATED,
+        );
+      }
+
 
       //CREATE DOCUMENT
       const newExtraDocument = this.extraDocumentRepository.create({
