@@ -6,9 +6,10 @@ import { join } from 'path';
 
 async function bootstrap() {
   const app= await NestFactory.create(AppModule);
+  console.log(join(__dirname, '..','uploads','documents_upload'));
 
-  app.use('/documents_upload', express.static(join(__dirname, 'files','uploads', 'documents_upload')));
-  app.use('/images_upload', express.static(join(__dirname, 'files','uploads', 'images_upload')));
+  app.use('/documents_upload', express.static(join(__dirname, '..','uploads','documents_upload')));
+app.use('/images_upload', express.static(join(__dirname, '..','uploads','images_upload')));
 
   const options = new DocumentBuilder()
   .setTitle('TIIMS Auth Methods')
