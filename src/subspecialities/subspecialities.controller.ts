@@ -21,6 +21,11 @@ export class SubspecialitiesController {
         return this.subSpecialitiesService.getAll();
     }
 
+    @Get('speciality/:id')
+    async getBySpeciality(@Param('id', ParseIntPipe) id: number) {
+        return this.subSpecialitiesService.getBySpeciality(id);
+    }
+
     @Get(':id')
     async getOne(@Param('id', ParseIntPipe) id: number) {
         return this.subSpecialitiesService.getOne(id);
