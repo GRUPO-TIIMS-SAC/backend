@@ -12,8 +12,8 @@ import { DeleteFileDto } from './dto/delete-file.dto';
 
 const writeFileAsync = promisify(writeFile);
 const mkdirAsync = promisify(fs.mkdir);
-const uploadDirectoryPdf = path.join(__dirname, './uploads/documents_upload');
-const uploadDirectoryImg = path.join(__dirname, './uploads/images_upload');
+const uploadDirectoryPdf = path.join(__dirname, '..','..', 'uploads', 'documents_upload');
+const uploadDirectoryImg = path.join(__dirname, '..','..', 'uploads', 'images_upload');
 
 @Injectable()
 export class FilesService {
@@ -124,7 +124,7 @@ export class FilesService {
 
   async deleteStorageFile(body: DeleteFileDto) {
     // Define la ruta al archivo que quieres eliminar
-    const filePath = path.join(__dirname, 'uploads', body.dir, body.file);
+    const filePath = path.join(__dirname, '..','..','uploads', body.dir, body.file);
     console.log(filePath);
 
     fs.unlink(filePath, (err) => {
