@@ -10,7 +10,7 @@ export class Utils {
   route() {
     const production = true;
     if (production) {
-      return 'https://apitest.tiims.com.pe';
+      return 'http://apitest.tiims.com.pe';
     } else {
       return 'http://localhost:4000';
     }
