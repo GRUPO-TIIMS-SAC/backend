@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColum
 import { Speciality } from "./specialities.entity";
 import { SubSpeciality } from "./subspecialities.entity";
 import { Unit } from "./units.entity";
+import { User } from "./user.entity";
 
 @Entity({ name: 'services' })
 export class Service {
@@ -9,12 +10,17 @@ export class Service {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToMany(() => Speciality, speciality => speciality.id)
+    /* @OneToMany(() => Speciality, speciality => speciality.id)
     @JoinColumn({name: 'speciality_id'})
     @Column({nullable: false})
-    speciality_id: number;
+    speciality_id: number; */
+    
+    @ManyToOne(() => User, user => user.id)
+    @JoinColumn({name: 'user_id'})
+    @Column({nullable: false})
+    user_id: number;
 
-    @OneToMany(() => SubSpeciality, subspeciality => subspeciality.id)
+    @ManyToOne(() => SubSpeciality, subspeciality => subspeciality.id)
     @JoinColumn({name: 'subspeciality_id'})
     @Column({nullable: false})
     subspeciality_id: number;

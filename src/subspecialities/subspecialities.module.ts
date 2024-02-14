@@ -10,5 +10,6 @@ import { SpecialitiesModule } from 'src/specialities/specialities.module';
 SpecialitiesModule],
   controllers: [SubspecialitiesController],
   providers: [SubspecialitiesService],
+  exports: [SubspecialitiesService]
 })
 export class SubspecialitiesModule {}
