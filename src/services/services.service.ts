@@ -41,7 +41,10 @@ export class ServicesService {
       }
 
       //TODO Validar que exista unidad
-      const service = this.serviceRepository.create(body);
+      const service = this.serviceRepository.create({
+        ...body,
+        user_id: user.getResponse()['id'],
+      });
       const respData = await this.serviceRepository.save(service);
       return new HttpException(
         { data: respData, message: 'Service created' },
