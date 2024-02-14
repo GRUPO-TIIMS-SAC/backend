@@ -57,4 +57,83 @@ export class ServicesService {
       );
     }
   }
+
+  async getBySpeciality(speciality_id: number) {
+    try {
+      const subspecialities = await this.subspecialityService.getBySpeciality(speciality_id);
+      
+      if(subspecialities.getStatus() != 200){
+        return subspecialities;
+      }
+
+      const services = await this.serviceRepository.find({
+        where: { subspeciality_id: subspecialities.getResponse()['id'] },
+      });
+
+      if(!services || services.length === 0){
+        return new HttpException(
+          { message: 'No services found' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      return new HttpException(
+        { data: services, message: 'Services found' },
+        HttpStatus.OK,
+      );
+
+    } catch (error) {
+      return new HttpException(
+        { message: 'Error getting services', error: error.message },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async delete(token: any, id: number) {
+    try {
+      const tokenDecoded = this.userService.decodeToken(token);
+
+      if (!tokenDecoded.id) {
+        return new HttpException(
+          { message: 'Token wrong' },
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      const user = await this.userService.findOne(tokenDecoded.id);
+      if (user.getStatus() != 200) {
+        return user;
+      }
+
+      const service = await this.serviceRepository.findOne({
+        where: { id: id},
+      });
+
+      if (!service) {
+        return new HttpException(
+          { message: 'Service not found' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      if (service.user_id != user.getResponse()['id']) {
+        return new HttpException(
+          { message: 'You are not the owner of this service' },
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+
+      const respData = await this.serviceRepository.delete(id);
+      return new HttpException(
+        { data: respData, message: 'Service deleted' },
+        HttpStatus.OK,
+      );
+    } catch (error) {
+      return new HttpException(
+        { message: 'Error deleting service', error: error.message },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }
