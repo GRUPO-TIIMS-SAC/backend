@@ -94,7 +94,7 @@ export class SubspecialitiesService {
 
       if (subspecialities.length === 0) {
         return new HttpException(
-          { message: 'No subspecialities found' },
+          { message: 'No subspecialities found', data: [] },
           HttpStatus.NOT_FOUND,
         );
       }
