@@ -32,6 +32,9 @@ export class ServicesService {
         return user;
       }
 
+      console.log(user)
+      console.log(user.getResponse()['data']['id'])
+
       const subspeciality = await this.subspecialityService.getOne(
         body.subspeciality_id,
       );
@@ -43,7 +46,7 @@ export class ServicesService {
       //TODO Validar que exista unidad
       const service = this.serviceRepository.create({
         ...body,
-        user_id: user.getResponse()['id'],
+        user_id: user.getResponse()['data']['id'],
       });
       const respData = await this.serviceRepository.save(service);
       return new HttpException(
@@ -117,7 +120,7 @@ export class ServicesService {
         );
       }
 
-      if (service.user_id != user.getResponse()['id']) {
+      if (service.user_id != user.getResponse()['data']['id']) {
         return new HttpException(
           { message: 'You are not the owner of this service' },
           HttpStatus.UNAUTHORIZED,
@@ -126,7 +129,7 @@ export class ServicesService {
 
       const respData = await this.serviceRepository.delete(id);
       return new HttpException(
-        { data: respData, message: 'Service deleted' },
+        { message: 'Service deleted' },
         HttpStatus.OK,
       );
     } catch (error) {
