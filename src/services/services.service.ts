@@ -32,9 +32,6 @@ export class ServicesService {
         return user;
       }
 
-      console.log(user)
-      console.log(user.getResponse()['data']['id'])
-
       const subspeciality = await this.subspecialityService.getOne(
         body.subspeciality_id,
       );
@@ -44,15 +41,14 @@ export class ServicesService {
       }
 
       //VALID DUPLICATED SERVICE
-      const services = await this.serviceRepository.find({
-        where: { user_id: user.getResponse()['data']['id'], subspeciality_id: body.subspeciality_id },
+      const servicesFound = await this.serviceRepository.findOne({
+        where: { user_id: tokenDecoded.id, subspeciality_id: body.subspeciality_id },
       });
-      console.log(services)
-      console.log(body)
 
-      if(services || services.length > 0){
-        const newService = Object.assign(services, body);
+      if(servicesFound){
+        const newService = Object.assign(servicesFound, body);
         const respData = await this.serviceRepository.save(newService);
+        console.log(newService)
         return new HttpException(
           { data: respData, message: 'Service updated' },
           HttpStatus.CREATED,
