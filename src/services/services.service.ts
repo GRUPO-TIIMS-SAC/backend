@@ -43,6 +43,18 @@ export class ServicesService {
         return subspeciality;
       }
 
+      //VALID DUPLICATED SERVICE
+      const services = await this.serviceRepository.find({
+        where: { user_id: user.getResponse()['data']['id'], subspeciality_id: body.subspeciality_id },
+      });
+
+      if(services && services.length > 0){
+        return new HttpException(
+          { message: 'Service already exists' },
+          HttpStatus.CONFLICT,
+        );
+      } 
+
       //TODO Validar que exista unidad
       const service = this.serviceRepository.create({
         ...body,
