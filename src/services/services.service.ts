@@ -49,9 +49,11 @@ export class ServicesService {
       });
 
       if(services && services.length > 0){
+        const newService = Object.assign(services, body);
+        const respData = await this.serviceRepository.save(newService);
         return new HttpException(
-          { message: 'Service already exists' },
-          HttpStatus.CONFLICT,
+          { data: respData, message: 'Service updated' },
+          HttpStatus.CREATED,
         );
       } 
 
@@ -109,7 +111,13 @@ export class ServicesService {
       }
 
       return new HttpException(
-        { data: services, message: 'Services found' },
+        { data: services.map((element) => {
+          return {
+            subspeciality_id: element.subspeciality_id,
+            amount: element.amount,
+            unit_id: element.unit_id,
+          }
+        }), message: 'Services found' },
         HttpStatus.OK,
       );
 
