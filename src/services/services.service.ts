@@ -47,8 +47,10 @@ export class ServicesService {
       const services = await this.serviceRepository.find({
         where: { user_id: user.getResponse()['data']['id'], subspeciality_id: body.subspeciality_id },
       });
+      console.log(services)
+      console.log(body)
 
-      if(services && services.length > 0){
+      if(services || services.length > 0){
         const newService = Object.assign(services, body);
         const respData = await this.serviceRepository.save(newService);
         return new HttpException(
