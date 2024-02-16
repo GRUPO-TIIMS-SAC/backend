@@ -61,6 +61,46 @@ export class ServicesService {
     }
   }
 
+  async getByUserSubspeciality(token: any, subspeciality_id: number) {
+    try {
+      const tokenDecoded = this.userService.decodeToken(token);
+
+      if (!tokenDecoded.id) {
+        return new HttpException(
+          { message: 'Token wrong' },
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      const user = await this.userService.findOne(tokenDecoded.id);
+      if (user.getStatus() != 200) {
+        return user;
+      }
+
+      const services = await this.serviceRepository.find({
+        where: { user_id: user.getResponse()['data']['id'], subspeciality_id: subspeciality_id },
+      });
+
+      if(!services || services.length === 0){
+        return new HttpException(
+          { message: 'No services found' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      return new HttpException(
+        { data: services, message: 'Services found' },
+        HttpStatus.OK,
+      );
+
+    } catch (error) {
+      return new HttpException(
+        { message: 'Error getting services', error: error.message },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   async getBySpeciality(speciality_id: number) {
     try {
       const subspecialities = await this.subspecialityService.getBySpeciality(speciality_id);
