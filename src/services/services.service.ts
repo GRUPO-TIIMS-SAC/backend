@@ -55,6 +55,14 @@ export class ServicesService {
         );
       } 
 
+      //VALID AMOUNT
+      if (body.amount <= 0) {
+        return new HttpException(
+          { message: 'Amount must be greater than 0' },
+          HttpStatus.CONFLICT,
+        );
+      }
+
       //TODO Validar que exista unidad
       const service = this.serviceRepository.create({
         ...body,
