@@ -5,6 +5,7 @@ import { SpecialitiesService } from 'src/specialities/specialities.service';
 import { Repository } from 'typeorm';
 import { CreateSubSpecialityDto } from './dto/create_subspecialities.dto';
 import { UpdateSubSpecialtyDto } from './dto/update_subspecialities.dto';
+import { ServicesService } from 'src/services/services.service';
 
 @Injectable()
 export class SubspecialitiesService {
@@ -12,7 +13,7 @@ export class SubspecialitiesService {
     @InjectRepository(SubSpeciality)
     private readonly subSpecialityRepository: Repository<SubSpeciality>,
     private readonly specialityService: SpecialitiesService,
-  ) {}
+  ) { }
 
   async create(body: CreateSubSpecialityDto) {
     try {
@@ -79,11 +80,11 @@ export class SubspecialitiesService {
   async getBySpeciality(speciality_id: number) {
     try {
       const speciality = await this.specialityService.getOne(speciality_id);
-  
-      if(speciality.getStatus() !== 200) {
+
+      if (speciality.getStatus() !== 200) {
         return speciality;
-      }                  
-      
+      }
+
       const specialityName = speciality.getResponse()['data']['name'];
 
       const subspecialities = await this.subSpecialityRepository.find({
@@ -101,7 +102,7 @@ export class SubspecialitiesService {
 
       return new HttpException(
         {
-          data: subspecialities.map((element) => {
+          data: subspecialities.map(async (element) => {
             return { id: element.id, name: element.name };
           }),
           message: `Subspeciality of ${specialityName} found`,

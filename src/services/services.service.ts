@@ -14,7 +14,7 @@ export class ServicesService {
     private serviceRepository: Repository<Service>,
     private readonly subspecialityService: SubspecialitiesService,
     private readonly userService: UsersService,
-  ) {}
+  ) { }
 
   async create(token: any, body: CreateServiceDto) {
     try {
@@ -45,7 +45,7 @@ export class ServicesService {
         where: { user_id: tokenDecoded.id, subspeciality_id: body.subspeciality_id },
       });
 
-      if(servicesFound){
+      if (servicesFound) {
         const newService = Object.assign(servicesFound, body);
         const respData = await this.serviceRepository.save(newService);
         console.log(newService)
@@ -53,7 +53,7 @@ export class ServicesService {
           { data: respData, message: 'Service updated' },
           HttpStatus.CREATED,
         );
-      } 
+      }
 
       //VALID AMOUNT
       if (body.amount <= 0) {
@@ -101,7 +101,7 @@ export class ServicesService {
         where: { user_id: user.getResponse()['data']['id'], subspeciality_id: subspeciality_id },
       });
 
-      if(!services || services.length === 0){
+      if (!services || services.length === 0) {
         return new HttpException(
           { message: 'No services found' },
           HttpStatus.NOT_FOUND,
@@ -109,13 +109,15 @@ export class ServicesService {
       }
 
       return new HttpException(
-        { data: services.map((element) => {
-          return {
-            subspeciality_id: element.subspeciality_id,
-            amount: element.amount,
-            unit_id: element.unit_id,
-          }
-        }), message: 'Services found' },
+        {
+          data: services.map((element) => {
+            return {
+              subspeciality_id: element.subspeciality_id,
+              amount: element.amount,
+              unit_id: element.unit_id,
+            }
+          }), message: 'Services found'
+        },
         HttpStatus.OK,
       );
 
@@ -130,8 +132,8 @@ export class ServicesService {
   async getBySpeciality(speciality_id: number) {
     try {
       const subspecialities = await this.subspecialityService.getBySpeciality(speciality_id);
-      
-      if(subspecialities.getStatus() != 200){
+
+      if (subspecialities.getStatus() != 200) {
         return subspecialities;
       }
 
@@ -139,7 +141,7 @@ export class ServicesService {
         where: { subspeciality_id: subspecialities.getResponse()['id'] },
       });
 
-      if(!services || services.length === 0){
+      if (!services || services.length === 0) {
         return new HttpException(
           { message: 'No services found' },
           HttpStatus.NOT_FOUND,
@@ -176,7 +178,7 @@ export class ServicesService {
       }
 
       const service = await this.serviceRepository.findOne({
-        where: { id: id},
+        where: { id: id },
       });
 
       if (!service) {
@@ -203,6 +205,87 @@ export class ServicesService {
         { message: 'Error deleting service', error: error.message },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
+    }
+  }
+
+  async subSpecialityLowestPrice(specility: number) {
+    try {
+      const subspecialities = await this.subspecialityService.getBySpeciality(specility);
+
+      if (subspecialities.getStatus() != 200) {
+        return subspecialities;
+      }
+
+      const respWithLowestPrice = await Promise.all(
+        subspecialities.getResponse()['data'].map(async (element) => {
+          console.log(await element);
+          const asyncElement = await element;
+          console.log(asyncElement.id);
+          const services = await this.lowestPrice(asyncElement.id);
+
+          if (services.getStatus() != 200){
+            return {
+              name: asyncElement.name,
+              id: asyncElement.id,
+              lowest_price: 0
+            }
+          }
+
+          const servicesData = services.getResponse()['data'];
+          console.log(servicesData);
+
+          return {
+            name: asyncElement.name,
+            id: asyncElement.id,
+            lowest_price: servicesData['amount'],
+          }
+        })
+      )
+
+      return new HttpException(
+        { data: respWithLowestPrice, message: 'Subspecilities with lowest price' },
+        HttpStatus.OK,
+      );
+    } catch (error) {
+      return new HttpException(
+        { message: 'Error getting lowest price', error: error.message },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      )
+    }
+  }
+
+  async lowestPrice(subspeciality_id: number) {
+    try {
+      const services = await this.serviceRepository.findOne({
+        where: { subspeciality_id: subspeciality_id },
+        relations: ['user', 'unit', 'subspeciality'],
+        order: { amount: 'ASC' },
+      });
+
+      if (!services) {
+        return new HttpException(
+          { message: 'No services found' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      return new HttpException(
+        {
+          data: {
+            specialist: services.user.fullname,
+            unit: services.unit.unit,
+            subspecility: services.subspeciality.name,
+            amount: services.amount
+          },
+          message: 'Lowest price found'
+        },
+        HttpStatus.OK,
+      );
+    } catch (error) {
+      return new HttpException(
+        { message: 'Error getting lowest price', error: error.message },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      )
     }
   }
 }
