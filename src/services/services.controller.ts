@@ -34,4 +34,14 @@ export class ServicesController {
         return this.servicesService.delete(token, id);
     }
 
+    @Get('lowest-price/subspecility/:id')
+    async getLowestPrice(@Param('id', ParseIntPipe) id: number) {
+        return this.servicesService.lowestPrice(id);
+    }
+
+    @Get('subspecilities-price/:id')
+    async getSubspecialitiesPrice(@Param('id', ParseIntPipe) id: number) {
+        return this.servicesService.subSpecialityLowestPrice(id);
+    }
+
 }
