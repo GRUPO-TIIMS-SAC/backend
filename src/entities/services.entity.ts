@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Speciality } from "./specialities.entity";
 import { SubSpeciality } from "./subspecialities.entity";
 import { Unit } from "./units.entity";
@@ -32,4 +32,16 @@ export class Service {
 
     @Column({type: 'double', nullable: false})
     amount: number;
+
+    @ManyToOne(() => User, user => user.id)
+    @JoinColumn({name: 'user_id'})
+    user: User;
+
+    @ManyToOne(() => SubSpeciality, subspecility => subspecility.id)
+    @JoinColumn({name: 'subspeciality_id'})
+    subspeciality: SubSpeciality;
+
+    @ManyToOne(() => Unit, unit => unit.id)
+    @JoinColumn({name: 'unit_id'})
+    unit: Unit;
 }
