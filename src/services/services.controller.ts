@@ -39,7 +39,7 @@ export class ServicesController {
         return this.servicesService.lowestPrice(id);
     }
 
-    @Get('subspecilities-price/:id')
+    @Get('subservices-prices/:id')
     async getSubspecialitiesPrice(@Param('id', ParseIntPipe) id: number) {
         return this.servicesService.subSpecialityLowestPrice(id);
     }
