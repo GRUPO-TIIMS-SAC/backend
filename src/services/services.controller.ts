@@ -21,6 +21,11 @@ export class ServicesController {
         return this.servicesService.getBySpeciality(id);
     }
 
+    @Get('subspeciality/:id')
+    async getServicesBySubspeciality(@Param('id', ParseIntPipe) id: number) {
+        return this.servicesService.getBySubspecility(id);
+    }
+
     @Get('user-subspeciality/:id')
     async getServicesByUserSubspeciality(
         @Headers('authorization') token: any, 
