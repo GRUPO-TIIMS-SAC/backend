@@ -6,6 +6,8 @@ import { CreateServiceDto } from './dto/create-service.dto';
 import { SubspecialitiesService } from 'src/subspecialities/subspecialities.service';
 import { sub } from 'date-fns';
 import { UsersService } from 'src/users/users.service';
+import { ProfilesService } from 'src/profiles/profiles.service';
+import { Utils } from 'src/utils/utils';
 
 @Injectable()
 export class ServicesService {
@@ -14,6 +16,7 @@ export class ServicesService {
     private serviceRepository: Repository<Service>,
     private readonly subspecialityService: SubspecialitiesService,
     private readonly userService: UsersService,
+    private readonly profileService: ProfilesService
   ) { }
 
   async create(token: any, body: CreateServiceDto) {
@@ -161,6 +164,50 @@ export class ServicesService {
     }
   }
 
+  async getBySubspecility(subspeciality_id: number) {
+    try {
+
+      const services = await this.serviceRepository.find({
+        where: { subspeciality_id: subspeciality_id },
+        relations: ['user', 'unit', 'subspeciality'],
+      });
+
+
+      if (!services || services.length === 0) {
+        return new HttpException(
+          { message: 'No services found' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const respData = await Promise.all(
+        services.map(async (element) => {
+          const awaitElement = await element;
+          const profile = await this.profileService.getByuser(element.user.id);
+          return {
+            ...element,
+            profile: {
+              ...profile.getResponse()['data'],
+              profile_photo: new Utils().route() + '/images_upload/' + profile.getResponse()['data']['profile_photo']
+            }
+          }
+        })
+      )
+
+
+      return new HttpException(
+        { data: respData, message: 'Services found' },
+        HttpStatus.OK,
+      );
+    }
+    catch (error) {
+      return new HttpException(
+        { message: 'Error getting services', error: error.message },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   async delete(token: any, id: number) {
     try {
       const tokenDecoded = this.userService.decodeToken(token);
@@ -223,7 +270,7 @@ export class ServicesService {
           console.log(asyncElement.id);
           const services = await this.lowestPrice(asyncElement.id);
 
-          if (services.getStatus() != 200){
+          if (services.getStatus() != 200) {
             return {
               name: asyncElement.name,
               id: asyncElement.id,

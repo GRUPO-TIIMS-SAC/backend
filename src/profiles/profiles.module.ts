@@ -18,5 +18,6 @@ import { FilesModule } from 'src/files/files.module';
   ],
   providers: [ProfilesService],
   controllers: [ProfilesController],
+  exports: [ProfilesService],
 })
 export class ProfilesModule {}

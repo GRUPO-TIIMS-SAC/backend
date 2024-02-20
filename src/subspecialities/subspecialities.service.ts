@@ -102,7 +102,7 @@ export class SubspecialitiesService {
 
       return new HttpException(
         {
-          data: subspecialities.map(async (element) => {
+          data: subspecialities.map((element) => {
             return { id: element.id, name: element.name };
           }),
           message: `Subspeciality of ${specialityName} found`,

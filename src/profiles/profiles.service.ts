@@ -429,6 +429,43 @@ export class ProfilesService {
     }
   }
 
+  async getByuser(id: number) {
+    try {
+
+      const userData = await this.userService.findOne(id);
+
+      if(userData.getStatus() !== 200){
+        return userData;
+      }
+
+      const profile = await this.profileRepository.findOne({
+        where: {
+          user_id: id,
+        },
+      });
+
+      if (!profile) {
+        return new HttpException(
+          { message: 'Profile not found' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      return new HttpException(
+        {
+          message: 'Profile found',
+          data: profile,
+        },
+        HttpStatus.OK,
+      );
+    } catch (error) {
+      return new HttpException(
+        { message: 'Error getting profile' },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   async getProfilePhoto(token: any) {
     try {
       const tokenDecoded = this.userService.decodeToken(token);
