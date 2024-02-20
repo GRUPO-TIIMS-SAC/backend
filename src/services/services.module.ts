@@ -6,12 +6,14 @@ import { Service } from 'src/entities/services.entity';
 import { SubSpeciality } from 'src/entities/subspecialities.entity';
 import { SubspecialitiesModule } from 'src/subspecialities/subspecialities.module';
 import { UsersModule } from 'src/users/users.module';
+import { ProfilesModule } from 'src/profiles/profiles.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Service]),
     SubspecialitiesModule,
     UsersModule,
+    ProfilesModule
   ],
   controllers: [ServicesController],
   providers: [ServicesService],

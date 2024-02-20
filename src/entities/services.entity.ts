@@ -3,6 +3,7 @@ import { Speciality } from "./specialities.entity";
 import { SubSpeciality } from "./subspecialities.entity";
 import { Unit } from "./units.entity";
 import { User } from "./user.entity";
+import { Profile } from "./profiles.entity";
 
 @Entity({ name: 'services' })
 export class Service {
