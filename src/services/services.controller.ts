@@ -49,4 +49,8 @@ export class ServicesController {
         return this.servicesService.subSpecialityLowestPrice(id);
     }
 
+    @Get('user-services/:id')
+    async getUserServices(@Param('id', ParseIntPipe) id: number) {
+        return this.servicesService.getBySpecialist(id);
+    }
 }
