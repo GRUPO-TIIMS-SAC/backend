@@ -335,4 +335,37 @@ export class ServicesService {
       )
     }
   }
+
+  async getBySpecialist(user_id: number) {
+    try {
+
+      const services = await this.serviceRepository.find({
+        where: { user_id: user_id },
+      });
+
+      if (!services || services.length === 0) {
+        return new HttpException(
+          { message: 'No services found' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const idsServices = services.map((element) => {
+        return element.id;
+      });
+
+      return new HttpException(
+        {
+          data: services, ids:idsServices, message: 'Services found'
+        },
+        HttpStatus.OK,
+      );
+
+    } catch (error) {
+      return new HttpException(
+        { message: 'Error getting services', error: error.message },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }
