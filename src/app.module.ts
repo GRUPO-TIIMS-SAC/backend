@@ -23,6 +23,7 @@ import { FilesModule } from './files/files.module';
 import { ExtraDocumentsListModule } from './extra_documents_list/extra_documents_list.module';
 import { ImgsFilesModule } from './imgs_files/imgs_files.module';
 import { ServicesModule } from './services/services.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { ServicesModule } from './services/services.module';
     ExtraDocumentsListModule,
     ImgsFilesModule,
     ServicesModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService, ],
