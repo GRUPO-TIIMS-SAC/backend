@@ -38,4 +38,11 @@ export class RequestsController {
     ) {
         return this.requestsService.changeStatus(id, 'disponible', 'borrador');
     }
+
+    @Get()
+    async getAllBySpecialist(
+        @Headers('authorization') token: any,
+    ) {
+        return this.requestsService.getAllBySpecialist(token);
+    }
 }
