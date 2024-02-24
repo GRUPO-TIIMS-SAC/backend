@@ -35,13 +35,8 @@ export class Request {
 
   @OneToOne(() => Payment, (payment) => payment.id)
   @JoinColumn({ name: 'payment_id' })
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   payment_id: number;
-
-  @ManyToOne(() => Unit, (unit) => unit.id)
-  @JoinColumn({ name: 'unit_id' })
-  @Column({ nullable: false })
-  unit_id: number;
 
   @Column({ nullable: false })
   amount: number;
@@ -52,21 +47,15 @@ export class Request {
   @Column({ nullable: false })
   date_service: Date;
 
-  @Column({ nullable: false })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP'})
   created_at: Date;
 
-  @Column({ nullable: false })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP'})
   updated_at: Date;
 
   @Column({ length: 100, nullable: false })
   address: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   bill: boolean;
-
-  @Column({ length: 50, nullable: false })
-  name: string;
-
-  @Column({ length: 25, nullable: false })
-  document_number: string;
 }

@@ -7,6 +7,7 @@ import { StatusRequest } from 'src/entities/status_request.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([StatusRequest])],
   controllers: [StatusRequestController],
-  providers: [StatusRequestService]
+  providers: [StatusRequestService],
+  exports: [StatusRequestService],
 })
 export class StatusRequestModule {}
