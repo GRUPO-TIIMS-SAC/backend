@@ -1,12 +1,15 @@
-import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as express from 'express';
-import { join } from 'path';
 import { ExpressAdapter, NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
+import { NestFactory } from '@nestjs/core';
+import * as admin from 'firebase-admin';
+import * as express from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const serviceAccount = require('../tiims-notification-firebase-adminsdk-n6udd-19d62dc961.json');
+
   console.log(join(__dirname, '..', 'uploads', 'documents_upload'));
 
   app.use('/documents_upload', express.static(join(__dirname, '..', 'uploads', 'documents_upload')));
@@ -14,6 +17,10 @@ async function bootstrap() {
 
   app.useStaticAssets(join(__dirname, 'view'));
   app.setViewEngine('ejs');
+
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
 
   const options = new DocumentBuilder()
     .setTitle('TIIMS Auth Methods')
