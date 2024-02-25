@@ -21,7 +21,7 @@ export class ServicesController {
         return this.servicesService.getBySpeciality(id);
     }
 
-    @Get('/services/sub-services/specialists-list/:id')
+    @Get('sub-services/specialists-list/:id')
     async getServicesBySubspeciality(@Param('id', ParseIntPipe) id: number) {
         return this.servicesService.getBySubspecility(id);
     }
