@@ -24,6 +24,7 @@ import { ExtraDocumentsListModule } from './extra_documents_list/extra_documents
 import { ImgsFilesModule } from './imgs_files/imgs_files.module';
 import { ServicesModule } from './services/services.module';
 import { PaymentModule } from './payment/payment.module';
+import { LiveNotificationsModule } from './live_notifications/live_notifications.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { PaymentModule } from './payment/payment.module';
     ImgsFilesModule,
     ServicesModule,
     PaymentModule,
+    LiveNotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService, ],
