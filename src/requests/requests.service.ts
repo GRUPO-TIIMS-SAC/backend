@@ -52,6 +52,8 @@ export class RequestsService {
                 return statusRequest;
             }
 
+            console.log(statusRequest.getResponse()['data']);
+
             const newBody = {
                 ...body,
                 user_id: user.getResponse()['data']['id'],
@@ -63,7 +65,12 @@ export class RequestsService {
             const response = await this.requestsRepository.save(request);
             return new HttpException({ message: 'Request created', data: response }, HttpStatus.CREATED);
         } catch (error) {
-            return new HttpException({ message: 'Error creating request', error: error }, HttpStatus.INTERNAL_SERVER_ERROR)
+            console.log(error);
+            return new HttpException({
+                message: 'Error creating request',
+                error: error.message
+            },
+                HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 
@@ -95,7 +102,7 @@ export class RequestsService {
                 }, HttpStatus.CONFLICT);
             }
 
-            const newStatusRequest = this.statusRequestService.getByStatus(status.toLowerCase());
+            const newStatusRequest = await this.statusRequestService.getByStatus(status.toLowerCase());
 
             const updatedBody = Object.assign(existRequest, { status_request_id: newStatusRequest.getResponse()['data']['id'] });
             const response = await this.requestsRepository.save(updatedBody);
@@ -134,7 +141,7 @@ export class RequestsService {
 
             const services = await this.servicesService.getBySpecialist(user.getResponse()['data']['id']);
 
-            if(services.getStatus() != 200) {
+            if (services.getStatus() != 200) {
                 return services;
             }
 
@@ -153,12 +160,12 @@ export class RequestsService {
                     HttpStatus.NOT_FOUND
                 );
             }
-            
+
             return new HttpException({
                 message: 'Requests found',
                 data: requests
             }, HttpStatus.OK);
-            
+
         } catch (error) {
             return new HttpException(
                 {
