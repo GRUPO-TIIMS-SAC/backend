@@ -73,11 +73,11 @@ export class StatusRequestService {
     }
   }
 
-  getByStatus(status: string) {
+  async getByStatus(status: string) {
     try {
-      const statusRequest = this.statusRequestsRepository.findOne({
+      const statusRequest = await this.statusRequestsRepository.findOne({
         where: {
-          status,
+          status: status.toLowerCase(),
         },
       });
 
