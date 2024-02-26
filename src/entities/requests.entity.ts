@@ -18,12 +18,12 @@ export class Request {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToMany(() => User, (user) => user.id)
+  @ManyToOne(() => User, (user) => user.id)
   @JoinColumn({ name: 'user_id' })
   @Column({ nullable: false })
   user_id: number;
 
-  @OneToMany(() => Service, (service) => service.id)
+  @ManyToOne(() => Service, (service) => service.id)
   @JoinColumn({ name: 'service_id' })
   @Column({ nullable: false })
   service_id: number;
