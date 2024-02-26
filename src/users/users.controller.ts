@@ -41,7 +41,7 @@ export class UsersController {
     return this.usersService.deleteUser(id);
   }
 
-  @Patch()
+  @Patch('update-password')
   async updateUser(@Headers() token: any, @Body() body: UpdatePasswordTokenDto) {
     return this.usersService.updatePasswordWithToken(token,body);
   }
