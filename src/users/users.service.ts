@@ -16,6 +16,7 @@ import * as bcrypt from 'bcrypt';
 import { ValidatedCodeDto } from 'src/tmp_validated_email/dto/validated-code.dto';
 import { UpdatedPasswordDto } from './dto/update-password.dto';
 import * as jwt from 'jsonwebtoken';
+import { UpdatePasswordTokenDto } from './dto/update-password-token.dto';
 
 @Injectable()
 export class UsersService {
@@ -297,6 +298,48 @@ export class UsersService {
       return decoded;
     } catch (err) {
       return new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
+    }
+  }
+
+  async updatePasswordWithToken(token: string, body: UpdatePasswordTokenDto) {
+    try {
+      const tokenDecoded = this.decodeToken(token);
+
+      if (!tokenDecoded.id) {
+        return new HttpException(
+          { message: 'Token wrong' },
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      const userFound = await this.usersRepository.findOne({
+        where: {
+          id: tokenDecoded.id,
+        },
+      });
+
+      if(!userFound) {
+        return new HttpException(
+          { message: 'User not found' },
+          HttpStatus.NOT_FOUND,
+          );
+      }
+
+      const hashedPassword = bcrypt.hash(body.password, 10);
+      const updateUser = Object.assign(userFound, {
+        password: hashedPassword,
+      });
+      const respData = await this.usersRepository.save(updateUser);
+
+      return new HttpException(
+        { message: 'Password updated' },
+        HttpStatus.OK,
+      );
+    } catch (error) {
+      return new HttpException(
+        { message: 'Error updating password' },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }
