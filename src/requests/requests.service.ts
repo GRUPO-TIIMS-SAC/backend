@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Between, In, LessThan, MoreThanOrEqual, Repository } from 'typeorm';
 import { Request } from '../entities/requests.entity';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { UsersService } from 'src/users/users.service';
@@ -129,6 +129,112 @@ export class RequestsService {
         }
     }
 
+    async getCalendarRequest(token: any, filter: number) {
+        try {
+            if (filter < 1 || filter > 12) {
+                return new HttpException(
+                    { message: 'Filter wrong' },
+                    HttpStatus.CONFLICT,
+                );
+            }
+
+            const tokenDecoded = this.userService.decodeToken(token);
+
+            if (!tokenDecoded.id) {
+                return new HttpException(
+                    { message: 'Token wrong' },
+                    HttpStatus.CONFLICT,
+                );
+            }
+
+            const user = await this.userService.findOne(tokenDecoded.id);
+
+            if (user.getStatus() != 200) {
+                return user;
+            }
+
+            const services = await this.servicesService.getBySpecialist(user.getResponse()['data']['id']);
+
+            if (services.getStatus() != 200) {
+                return services;
+            }
+
+            const startDate = new Date(Date.UTC(2022, filter - 1, 1)); // Los meses en JavaScript van de 0 a 11
+            const endDate = new Date(Date.UTC(2022, filter, 1));
+
+
+            const statusRequest = await this.statusRequestService.getByStatus('aceptado');
+            const requests = await this.requestsRepository.find({
+                where: {
+                    service_id: In(services.getResponse()['ids']),
+                    status_request_id: statusRequest.getResponse()['data']['id'],
+                    date_service: Between(startDate, endDate),
+                },
+                relations: ['user', 'service']
+            });
+
+            if (!requests || requests.length == 0) {
+                return new HttpException(
+                    { message: 'Requests not found', data: [] },
+                    HttpStatus.NOT_FOUND
+                );
+            }
+
+            const requestWithSubspeciality = await Promise.all(requests.map(async (request) => {
+
+                const subspeciality = await this.subSpecialitiesService.getOne(request.service.subspeciality_id);
+                const profile = await this.profileService.getByuser(request.user.id);
+                const profileSpecialist = await this.profileService.getByuser(request.service.user_id);
+                const userSpecialist = await this.userService.findOne(request.service.user_id);
+                const profileData = profile.getResponse()['data'];
+                const profileSpecialistData = profileSpecialist.getResponse()['data'];
+                const userSpecialistData = userSpecialist.getResponse()['data'];
+
+                return {
+                    id: request.id,
+                    date_service: request.date_service,
+                    amount: request.amount,
+                    code_service: request.code_service,
+                    district: request.district,
+                    address: request.address,
+                    location: {
+                        longitude: request.longitude,
+                        latitude: request.latitude,
+                    },
+                    bill: request.bill,
+                    subspeciality: subspeciality.getResponse()['data']['name'],
+                    speciality: subspeciality.getResponse()['data']['speciality']['name'],
+                    user: {
+                        email: request.user.email,
+                        fullname: request.user.fullname,
+                        profile_photo: new Utils().route() + '/images_upload/' + profileData['profile_photo'],
+                    },
+                    specialist: {
+                        email: userSpecialistData.email,
+                        fullname: userSpecialistData.fullname,
+                        profile_photo: new Utils().route() + '/images_upload/' + profileSpecialistData['profile_photo'],
+                    }
+
+                }
+            }
+            ));
+
+            return new HttpException({
+                message: 'Requests found',
+                // data: requests
+                data: requestWithSubspeciality
+            }, HttpStatus.OK);
+
+        } catch (error) {
+            return new HttpException(
+                {
+                    message: 'Error getting requests',
+                    error: error
+                },
+                HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+    }
+
     async getAllBySpecialist(token: any, filter?: string) {
         try {
             const tokenDecoded = this.userService.decodeToken(token);
@@ -177,12 +283,24 @@ export class RequestsService {
                 },
                 relations: ['user', 'service']
             });
-            console.log(requests);
+
+            if (!requests || requests.length == 0) {
+                return new HttpException(
+                    { message: 'Requests not found', data: [] },
+                    HttpStatus.NOT_FOUND
+                );
+            }
 
             const requestWithSubspeciality = await Promise.all(requests.map(async (request) => {
+
                 const subspeciality = await this.subSpecialitiesService.getOne(request.service.subspeciality_id);
                 const profile = await this.profileService.getByuser(request.user.id);
+                const profileSpecialist = await this.profileService.getByuser(request.service.user_id);
+                const userSpecialist = await this.userService.findOne(request.service.user_id);
                 const profileData = profile.getResponse()['data'];
+                const profileSpecialistData = profileSpecialist.getResponse()['data'];
+                const userSpecialistData = userSpecialist.getResponse()['data'];
+
                 return {
                     id: request.id,
                     date_service: request.date_service,
@@ -202,16 +320,15 @@ export class RequestsService {
                         fullname: request.user.fullname,
                         profile_photo: new Utils().route() + '/images_upload/' + profileData['profile_photo'],
                     },
+                    specialist: {
+                        email: userSpecialistData.email,
+                        fullname: userSpecialistData.fullname,
+                        profile_photo: new Utils().route() + '/images_upload/' + profileSpecialistData['profile_photo'],
+                    }
+
                 }
             }
             ));
-
-            if (!requests || requests.length == 0) {
-                return new HttpException(
-                    { message: 'Requests not found', data: []},
-                    HttpStatus.NOT_FOUND
-                );
-            }
 
             return new HttpException({
                 message: 'Requests found',

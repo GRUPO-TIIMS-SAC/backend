@@ -46,4 +46,12 @@ export class RequestsController {
     ) {
         return this.requestsService.getAllBySpecialist(token, filter);
     }
+
+    @Get('calendar/:month')
+    async getCalendar(
+        @Headers('authorization') token: any,
+        @Param('month', ParseIntPipe) month: number,
+    ) {
+        return this.requestsService.getCalendarRequest(token, month);
+    }
 }
