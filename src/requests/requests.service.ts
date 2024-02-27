@@ -129,7 +129,7 @@ export class RequestsService {
         }
     }
 
-    async getAllBySpecialist(token: any) {
+    async getAllBySpecialist(token: any, filter?: string) {
         try {
             const tokenDecoded = this.userService.decodeToken(token);
 
@@ -152,7 +152,24 @@ export class RequestsService {
                 return services;
             }
 
-            const statusRequest = await this.statusRequestService.getByStatus('disponible');
+            let statusRequestString;
+
+            switch (filter) {
+                case 'available':
+                    statusRequestString = 'disponible';
+                    break;
+                case 'accepted':
+                    statusRequestString = 'aceptado';
+                    break;
+                case 'history':
+                    statusRequestString = 'realizado';
+                    break;
+                default:
+                    statusRequestString = 'disponible';
+                    break;
+            }
+
+            const statusRequest = await this.statusRequestService.getByStatus(statusRequestString);
             const requests = await this.requestsRepository.find({
                 where: {
                     service_id: In(services.getResponse()['ids']),
