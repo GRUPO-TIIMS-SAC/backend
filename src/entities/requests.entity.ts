@@ -44,7 +44,7 @@ export class Request {
   @Column({ length: 8, nullable: false })
   code_service: string;
 
-  @Column({ nullable: false })
+  @Column({ type: 'timestamp', nullable: false })
   date_service: Date;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP'})
@@ -56,6 +56,23 @@ export class Request {
   @Column({ length: 100, nullable: false })
   address: string;
 
+  @Column({ length: 25, nullable: false })
+  district: string;
+
+  @Column({ type: 'double', nullable: true })
+  longitude: number;
+
+  @Column({ type: 'double', nullable: true })
+  latitude: number;
+
   @Column({ nullable: true })
   bill: boolean;
+
+  @ManyToOne(() => User, user => user.id)
+  @JoinColumn({name: 'user_id'})
+  user: User;
+
+  @ManyToOne(() => Service, service => service.id)
+  @JoinColumn({name: 'service_id'})
+  service: Service;
 }

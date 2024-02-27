@@ -6,6 +6,10 @@ import { CreateRequestDto } from './dto/create-request.dto';
 import { UsersService } from 'src/users/users.service';
 import { StatusRequestService } from 'src/status_request/status_request.service';
 import { ServicesService } from 'src/services/services.service';
+import { SubspecialitiesService } from 'src/subspecialities/subspecialities.service';
+import { SpecialitiesService } from 'src/specialities/specialities.service';
+import { ProfilesService } from 'src/profiles/profiles.service';
+import { Utils } from 'src/utils/utils';
 
 
 @Injectable()
@@ -15,7 +19,10 @@ export class RequestsService {
         private requestsRepository: Repository<Request>,
         private userService: UsersService,
         private statusRequestService: StatusRequestService,
-        private servicesService: ServicesService
+        private servicesService: ServicesService,
+        private subSpecialitiesService: SubspecialitiesService,
+        private specialitiesService: SpecialitiesService,
+        private profileService: ProfilesService
     ) { }
 
     private generateRandomCode(): string {
@@ -146,18 +153,41 @@ export class RequestsService {
             }
 
             const statusRequest = await this.statusRequestService.getByStatus('disponible');
-            console.log({
-                id: user.getResponse()['data']['id'],
-                service_id: services.getResponse()['ids'],
-            })
             const requests = await this.requestsRepository.find({
                 where: {
                     service_id: In(services.getResponse()['ids']),
                     status_request_id: statusRequest.getResponse()['data']['id']
-                }
+                },
+                relations: ['user', 'service']
             });
+            console.log(requests);
 
-            console.log({requests})
+            const requestWithSubspeciality = await Promise.all(requests.map(async (request) => {
+                const subspeciality = await this.subSpecialitiesService.getOne(request.service.subspeciality_id);
+                const profile = await this.profileService.getByuser(request.user.id);
+                const profileData = profile.getResponse()['data'];
+                return {
+                    id: request.id,
+                    date_service: request.date_service,
+                    amount: request.amount,
+                    code_service: request.code_service,
+                    district: request.district,
+                    address: request.address,
+                    location: {
+                        longitude: request.longitude,
+                        latitude: request.latitude,
+                    },
+                    bill: request.bill,
+                    subspeciality: subspeciality.getResponse()['data']['name'],
+                    speciality: subspeciality.getResponse()['data']['speciality']['name'],
+                    user: {
+                        email: request.user.email,
+                        fullname: request.user.fullname,
+                        profile_photo: new Utils().route() + '/images_upload/' + profileData['profile_photo'],
+                    },
+                }
+            }
+            ));
 
             if (!requests || requests.length == 0) {
                 return new HttpException(
@@ -168,7 +198,8 @@ export class RequestsService {
 
             return new HttpException({
                 message: 'Requests found',
-                data: requests
+                // data: requests
+                data: requestWithSubspeciality
             }, HttpStatus.OK);
 
         } catch (error) {

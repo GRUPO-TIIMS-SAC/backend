@@ -3,4 +3,7 @@ export class CreateRequestDto {
     amount: number;
     date_service: Date;
     address: string;
+    district: string;
+    longitude: number;
+    latitude: number;
 }
