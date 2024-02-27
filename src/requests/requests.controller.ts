@@ -39,10 +39,11 @@ export class RequestsController {
         return this.requestsService.changeStatus(id, 'disponible', 'borrador');
     }
 
-    @Get()
+    @Get(':filter')
     async getAllBySpecialist(
         @Headers('authorization') token: any,
+        @Param('filter') filter: string,
     ) {
-        return this.requestsService.getAllBySpecialist(token);
+        return this.requestsService.getAllBySpecialist(token, filter);
     }
 }
