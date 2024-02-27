@@ -124,7 +124,9 @@ export class SubspecialitiesService {
         where: {
           id: id,
         },
+        relations: ['speciality'],
       });
+      console.log({ profile })
 
       if (!profile) {
         throw new HttpException('Profile not found', HttpStatus.NOT_FOUND);
