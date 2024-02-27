@@ -89,12 +89,12 @@ export class RequestsService {
                 );
             }
 
-            const statusRequest = this.statusRequestService.getById(existRequest.status_request_id);
+            const statusRequest = await this.statusRequestService.getById(existRequest.status_request_id);
 
             if (statusRequest.getStatus() != 200) {
                 return statusRequest;
             }
-
+            console.log(statusRequest.getResponse()['data'])
             if (statusRequest.getResponse()['data']['status'] != previusStatus) {
                 return new HttpException({
                     message: 'Request status not available',
@@ -146,7 +146,10 @@ export class RequestsService {
             }
 
             const statusRequest = await this.statusRequestService.getByStatus('disponible');
-
+            console.log({
+                id: user.getResponse()['data']['id'],
+                service_id: services.getResponse()['ids'],
+            })
             const requests = await this.requestsRepository.find({
                 where: {
                     service_id: In(services.getResponse()['ids']),
@@ -154,9 +157,11 @@ export class RequestsService {
                 }
             });
 
+            console.log({requests})
+
             if (!requests || requests.length == 0) {
                 return new HttpException(
-                    { message: 'Requests not found' },
+                    { message: 'Requests not found', data: []},
                     HttpStatus.NOT_FOUND
                 );
             }

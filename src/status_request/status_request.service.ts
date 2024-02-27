@@ -101,9 +101,9 @@ export class StatusRequestService {
     }
   }
 
-  getById(id: number) {
+  async getById(id: number) {
     try {
-      const statusRequest = this.statusRequestsRepository.findOne({
+      const statusRequest = await this.statusRequestsRepository.findOne({
         where: {
           id,
         },
