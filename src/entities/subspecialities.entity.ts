@@ -14,4 +14,8 @@ export class SubSpeciality {
 
     @Column({nullable: false})
     name: string;
+
+    @ManyToOne(() => Speciality, speciality => speciality.id)
+    @JoinColumn({name: 'speciality_id'})
+    speciality: Speciality;
 }
