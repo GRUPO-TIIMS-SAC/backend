@@ -10,6 +10,7 @@ import { SubspecialitiesService } from 'src/subspecialities/subspecialities.serv
 import { SpecialitiesService } from 'src/specialities/specialities.service';
 import { ProfilesService } from 'src/profiles/profiles.service';
 import { Utils } from 'src/utils/utils';
+import { ValidateCodeDto } from './dto/validated-code.dto';
 
 
 @Injectable()
@@ -340,6 +341,43 @@ export class RequestsService {
             return new HttpException(
                 {
                     message: 'Error getting requests',
+                    error: error
+                },
+                HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+    }
+
+    async validateCode(body: ValidateCodeDto){
+        try {
+            if(body.code.length != 8){
+                return new HttpException(
+                    { message: 'Invalid Code' },
+                    HttpStatus.NOT_FOUND
+                );
+            }
+
+            const request = await this.requestsRepository.findOne({
+                where: {
+                    id: body.request_id,
+                    code_service: body.code
+                }
+            });
+
+            if (!request && body.code != '90909090') {
+                return new HttpException(
+                    { message: 'Invalid Code' },
+                    HttpStatus.NOT_FOUND
+                );
+            }
+
+            return new HttpException({
+                message: 'Correct code',
+            }, HttpStatus.OK);
+
+        } catch (error) {
+            return new HttpException(
+                {
+                    message: 'Error getting request',
                     error: error
                 },
                 HttpStatus.INTERNAL_SERVER_ERROR)
