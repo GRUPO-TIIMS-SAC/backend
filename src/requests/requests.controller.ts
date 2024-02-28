@@ -2,6 +2,7 @@ import { Controller, Post, Headers, Body, Get, Patch, Param, ParseIntPipe } from
 import { RequestsService } from './requests.service';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { ValidateCodeDto } from './dto/validated-code.dto';
 
 @ApiTags('Requests')
 @Controller('requests')
@@ -37,6 +38,20 @@ export class RequestsController {
         @Param('id', ParseIntPipe) id: number ,
     ) {
         return this.requestsService.changeStatus(id, 'disponible', 'borrador');
+    }
+
+    @Patch('execute/:id')
+    async executeRequest(
+        @Param('id', ParseIntPipe) id: number ,
+    ) {
+        return this.requestsService.changeStatus(id, 'ejecutado', 'aceptado');
+    }
+
+    @Post('validate-code')
+    async validateCode(
+        @Body() body: ValidateCodeDto,
+    ) {
+        return this.requestsService.validateCode(body);
     }
 
     @Get(':filter')
