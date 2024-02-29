@@ -56,7 +56,7 @@ export class Request {
   @Column({ length: 100, nullable: false })
   address: string;
 
-  @Column({ length: 25, nullable: false })
+  @Column({ length: 50, nullable: false })
   district: string;
 
   @Column({ type: 'double', nullable: true })

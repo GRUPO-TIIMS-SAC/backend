@@ -1,12 +1,14 @@
-import { Body, Controller, Get, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Res, Headers, Param } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { PaymentService } from './payment.service';
+import { CreateOrderDto } from './dto/create-order.dto';
+import { SendOrderDto } from './dto/send-order.dto';
 
 @ApiTags('Payment')
 @Controller('payment')
 export class PaymentController {
-  constructor(private paymentService: PaymentService) {}
+  constructor(private paymentService: PaymentService) { }
 
   @Get()
   getPaymentPage(@Res() res: Response) {
@@ -19,9 +21,19 @@ export class PaymentController {
   getPaymentPageV4(@Res() res: Response, @Body() body: { amount: number }) {
     res.render('culqi_v4', {
       publicKey: 'pk_test_0d94058535f7fbea',
-      body: {
-        amount: 10000,
-      }
+      amount: 50000,
+      body: body,
+    });
+  }
+
+  @Get('V4/:token/:amount')
+  getPaymentPageV4Final(@Res() res: Response,
+  @Param('token') token: string,
+  @Param('amount') amount: number){
+    res.render('culqi_v4', {
+      publicKey: 'pk_test_0d94058535f7fbea',
+      amount: amount,
+      body: token,
     });
   }
 
@@ -33,7 +45,14 @@ export class PaymentController {
   }
 
   @Post('create-order')
-  createOrder(@Body() body: { amount: number }) {
-    this.paymentService.createOrder();
+  createOrder(@Body() body: CreateOrderDto) {
+    return this.paymentService.createOrder(body);
+  }
+
+  @Post('send-payment')
+  sendPayment(
+    @Headers('authorization') token: any,
+    @Body() body: SendOrderDto) {
+    return this.paymentService.sendPayment(token, body);
   }
 }
