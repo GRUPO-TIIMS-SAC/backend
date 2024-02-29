@@ -165,12 +165,8 @@ export class RequestsService {
 
             const currentYear = new Date().getFullYear();
 
-            const startDate = new Date(currentYear,filter-1,1); // Los meses en JavaScript van de 0 a 11
+            const startDate = new Date(currentYear,filter-1,1);
             const endDate = new Date(currentYear,filter,0);
-            console.log({
-                startDate,
-                endDate
-            })
 
             const statusRequest = await this.statusRequestService.getByStatus('aceptado');
             const requests = await this.requestsRepository.find({
@@ -217,11 +213,15 @@ export class RequestsService {
                         email: request.user.email,
                         fullname: request.user.fullname,
                         profile_photo: new Utils().route() + '/images_upload/' + profileData['profile_photo'],
+                        nationality: profileData['nationality']['nationality'],
+                        age: new Utils().calculateAge(profileData['born_date'])
                     },
                     specialist: {
                         email: userSpecialistData.email,
                         fullname: userSpecialistData.fullname,
                         profile_photo: new Utils().route() + '/images_upload/' + profileSpecialistData['profile_photo'],
+                        nationality: profileSpecialistData['nationality']['nationality'],
+                        age: new Utils().calculateAge(profileSpecialistData['born_date'])
                     }
 
                 }
@@ -329,11 +329,15 @@ export class RequestsService {
                         email: request.user.email,
                         fullname: request.user.fullname,
                         profile_photo: new Utils().route() + '/images_upload/' + profileData['profile_photo'],
+                        nationality: profileData['nationality']['nationality'],
+                        age: new Utils().calculateAge(profileData['born_date'])
                     },
                     specialist: {
                         email: userSpecialistData.email,
                         fullname: userSpecialistData.fullname,
                         profile_photo: new Utils().route() + '/images_upload/' + profileSpecialistData['profile_photo'],
+                        nationality: profileSpecialistData['nationality']['nationality'],
+                        age: new Utils().calculateAge(profileSpecialistData['born_date'])
                     }
 
                 }
