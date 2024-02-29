@@ -55,4 +55,9 @@ export class PaymentController {
     @Body() body: SendOrderDto) {
     return this.paymentService.sendPayment(token, body);
   }
+
+  @Get('weebhook-response')
+  weebhookResponse() {
+    console.log('weebhook-response');
+  }
 }

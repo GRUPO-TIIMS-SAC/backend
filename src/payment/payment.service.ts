@@ -62,7 +62,8 @@ export class PaymentService {
                 first_name: userData.fullname,
                 last_name: userData.fullname,
                 phone_number: profileData.phone,
-                documentNumber: profileData.number_document
+                documentNumber: profileData.number_document,
+                request_id: body.request_id
             }
 
             const tokenBody = await this.jwtService.signAsync(newBody);
@@ -142,7 +143,8 @@ export class PaymentService {
             const bodyPayment = {
                 user_id: decryptedBody.id,
                 amount: bodyRequest.amount/100,
-                token_payment: response.data.id
+                token_payment: response.data.id,
+                request_id: decryptedBody.request_id
             }
 
             const payment = this.paymentRepository.create(bodyPayment);
