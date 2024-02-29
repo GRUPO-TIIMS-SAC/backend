@@ -163,9 +163,14 @@ export class RequestsService {
                 return services;
             }
 
-            const startDate = new Date(Date.UTC(2022, filter - 1, 1)); // Los meses en JavaScript van de 0 a 11
-            const endDate = new Date(Date.UTC(2022, filter, 1));
+            const currentYear = new Date().getFullYear();
 
+            const startDate = new Date(currentYear,filter-1,1); // Los meses en JavaScript van de 0 a 11
+            const endDate = new Date(currentYear,filter,0);
+            console.log({
+                startDate,
+                endDate
+            })
 
             const statusRequest = await this.statusRequestService.getByStatus('aceptado');
             const requests = await this.requestsRepository.find({
