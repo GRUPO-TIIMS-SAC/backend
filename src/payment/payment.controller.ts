@@ -18,4 +18,11 @@ export class PaymentController {
       publicKey: 'pk_test_0d94058535f7fbea',
     });
   }
+
+  @Get('new')
+  getPaymentPageNew(@Res() res: Response) {
+    res.render('culqi_checkout_new', {
+      publicKey: 'pk_test_0d94058535f7fbea',
+    });
+  }
 }
