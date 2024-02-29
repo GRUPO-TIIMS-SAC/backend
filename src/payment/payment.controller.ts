@@ -1,10 +1,13 @@
-import { Body, Controller, Get, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
+import { PaymentService } from './payment.service';
 
 @ApiTags('Payment')
 @Controller('payment')
 export class PaymentController {
+  constructor(private paymentService: PaymentService) {}
+
   @Get()
   getPaymentPage(@Res() res: Response) {
     res.render('culqi_checkout', {
@@ -27,5 +30,10 @@ export class PaymentController {
     res.render('culqi_checkout_new', {
       publicKey: 'pk_test_0d94058535f7fbea',
     });
+  }
+
+  @Post('create-order')
+  createOrder(@Body() body: { amount: number }) {
+    this.paymentService.createOrder();
   }
 }
