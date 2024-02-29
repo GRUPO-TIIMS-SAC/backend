@@ -109,7 +109,7 @@ export class RequestsService {
                     status: HttpStatus.CONFLICT
                 }, HttpStatus.CONFLICT);
             }
-            
+
             console.log(status.toLowerCase());
             const newStatusRequest = await this.statusRequestService.getByStatus(status.toLowerCase());
             console.log(newStatusRequest.getResponse());
@@ -165,8 +165,8 @@ export class RequestsService {
 
             const currentYear = new Date().getFullYear();
 
-            const startDate = new Date(currentYear,filter-1,1);
-            const endDate = new Date(currentYear,filter,0);
+            const startDate = new Date(currentYear, filter - 1, 1);
+            const endDate = new Date(currentYear, filter, 0);
 
             const statusRequest = await this.statusRequestService.getByStatus('aceptado');
             const requests = await this.requestsRepository.find({
@@ -360,9 +360,9 @@ export class RequestsService {
         }
     }
 
-    async validateCode(body: ValidateCodeDto){
+    async validateCode(body: ValidateCodeDto) {
         try {
-            if(body.code.length != 8){
+            if (body.code.length != 8) {
                 return new HttpException(
                     { message: 'Invalid Code' },
                     HttpStatus.NOT_FOUND
@@ -385,6 +385,54 @@ export class RequestsService {
 
             return new HttpException({
                 message: 'Correct code',
+            }, HttpStatus.OK);
+
+        } catch (error) {
+            return new HttpException(
+                {
+                    message: 'Error getting request',
+                    error: error
+                },
+                HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+    }
+
+    async getAllRequestByUser(user_id: number) {
+        try {
+            const user = await this.userService.findOne(user_id);
+
+            if (user.getStatus() != 200) {
+                return user;
+            }
+
+            const services = await this.servicesService.getBySpecialist(user.getResponse()['data']['id']);
+
+            if (services.getStatus() != 200) {
+                return services;
+            }
+
+            const requests = await this.requestsRepository.find({
+                where: {
+                    service_id: In(services.getResponse()['ids']),
+                },
+            });
+
+            if (!requests || requests.length == 0) {
+                return new HttpException(
+                    { message: 'Requests not found', data: [] },
+                    HttpStatus.NOT_FOUND
+                );
+            }
+
+            console.log(requests)
+
+            const idsRequest = requests.map((element) => {
+                return element.id;
+            });
+
+            return new HttpException({
+                message: 'Requests found',
+                data: idsRequest
             }, HttpStatus.OK);
 
         } catch (error) {
