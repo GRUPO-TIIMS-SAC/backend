@@ -109,8 +109,10 @@ export class RequestsService {
                     status: HttpStatus.CONFLICT
                 }, HttpStatus.CONFLICT);
             }
-
+            
+            console.log(status.toLowerCase());
             const newStatusRequest = await this.statusRequestService.getByStatus(status.toLowerCase());
+            console.log(newStatusRequest.getResponse());
 
             const updatedBody = Object.assign(existRequest, { status_request_id: newStatusRequest.getResponse()['data']['id'] });
             const response = await this.requestsRepository.save(updatedBody);
@@ -121,10 +123,11 @@ export class RequestsService {
             }, HttpStatus.OK);
 
         } catch (error) {
+            console.log(error);
             return new HttpException(
                 {
                     message: 'Error accepting request',
-                    error: error
+                    error: error.message
                 },
                 HttpStatus.INTERNAL_SERVER_ERROR)
         }
@@ -227,10 +230,11 @@ export class RequestsService {
             }, HttpStatus.OK);
 
         } catch (error) {
+            console.log(error);
             return new HttpException(
                 {
                     message: 'Error getting requests',
-                    error: error
+                    error: error.message
                 },
                 HttpStatus.INTERNAL_SERVER_ERROR)
         }

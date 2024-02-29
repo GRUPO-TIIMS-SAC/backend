@@ -44,7 +44,7 @@ export class RequestsController {
     async executeRequest(
         @Param('id', ParseIntPipe) id: number ,
     ) {
-        return this.requestsService.changeStatus(id, 'ejecutado', 'aceptado');
+        return this.requestsService.changeStatus(id, 'ejecutando', 'aceptado');
     }
 
     @Post('validate-code')
