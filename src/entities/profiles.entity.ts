@@ -74,4 +74,12 @@ import { User } from './user.entity';
 
     @Column({ length: 250, nullable: true})
     own_description: string;
+
+    @ManyToOne(() => Gender, gender => gender.id)
+    @JoinColumn({name:'gender_id'})
+    gender: Gender;
+
+    @ManyToOne(() => Nationality, nationality => nationality.id)
+    @JoinColumn({name:'nationality_id'})
+    nationality: Nationality;
 }
