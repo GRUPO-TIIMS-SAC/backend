@@ -21,6 +21,7 @@ import { ProfilesModule } from 'src/profiles/profiles.module';
   ProfilesModule
   ],
   controllers: [RequestsController],
-  providers: [RequestsService]
+  providers: [RequestsService],
+  exports: [RequestsService]
 })
 export class RequestsModule { }
