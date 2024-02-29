@@ -1,42 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Culqi v4</title>
+    <script src="functions_scripts.js"></script>
+</head>
+
 <body>
-    <button id="btn_pagar">Pagar V4</button>
     <script src="https://checkout.culqi.com/js/v4"></script>
     <script>
-        Culqi.publicKey = 'pk_test_0d94058535f7fbea';
-    </script>
-    <script>
+        Culqi.publicKey = '<%- publicKey %>';
         Culqi.settings({
-            title: 'Culqi Store',
-            currency: 'PEN',  // Este parámetro es requerido para realizar pagos yape
-            amount: 1000,  // Este parámetro es requerido para realizar pagos yape
-            // order: 'ord_live_0CjjdWhFpEAZlxlz', // Este parámetro es requerido para realizar pagos con pagoEfectivo, billeteras y Cuotéalo
-            /* xculqirsaid: '32cc269b-23c5-45db-a1f2-875a05fcc160',
-            rsapublickey: `-----BEGIN PUBLIC KEY-----
-                        MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCxx75R/qqmPnSiBNzzF5RpQD0V
-                        kqGoxNziIv1GnHIIuSy16yLaMVw3hZXkPcsoJNk/5Rxv+hwfBHTN69f9P4Y5v43d
-                        ZXF58Vva67xpOy4xUuU4ifkeFRZ+ajZIInqkGwDSR9Auaax9ENLkGZFXLeJ2qV+j
-                        Z9yafFjQO3lt7h+v6QIDAQAB
-                        -----END PUBLIC KEY-----`, */
+            title: 'TIIMS',
+            currency: 'PEN', 
+            amount: '<%= body.amount %>', 
         });
-    </script>
-    <script>
+
         Culqi.options({
             lang: "auto",
             installments: false, // Habilitar o deshabilitar el campo de cuotas
             paymentMethods: {
                 tarjeta: true,
                 yape: true,
-                bancaMovil: true,
-                agente: true,
-                billetera: true,
-                cuotealo: true,
+                bancaMovil: false,
+                agente: false,
+                billetera: false,
+                cuotealo: false,
             },
             style: {
                 logo: "https://static.culqi.com/v2/v2/static/img/logo.png",
             }
         });
-    </script>
-    <script>
+
         Culqi.options({
             style: {
                 logo: 'https://culqi.com/LogoCulqi.png',
@@ -49,15 +44,14 @@
                 priceColor: '' // hexadecimal
             }
         });
-    </script>
-    <script>
+
         function culqi() {
             if (Culqi.token) {  // ¡Objeto Token creado exitosamente!
                 const token = Culqi.token.id;
                 console.log('Se ha creado un Token: ', token);
                 //En esta linea de codigo debemos enviar el "Culqi.token.id"
                 //hacia tu servidor con Ajax
-                                
+
             } else if (Culqi.order) {  // ¡Objeto Order creado exitosamente!
                 const order = Culqi.order;
                 console.log('Se ha creado el objeto Order: ', order);
@@ -74,6 +68,9 @@
             console.log('Se llama a la función Culqi.culqi');
         }
 
+        Culqi.open();
+
+
         btn_pagar.addEventListener('click', function (e) {
             // Abre el formulario con la configuración en Culqi.settings y CulqiOptions
             console.log('Abriendo formulario de pago');
@@ -82,3 +79,5 @@
         })
     </script>
 </body>
+
+</html>

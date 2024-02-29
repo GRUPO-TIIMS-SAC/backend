@@ -1,4 +1,4 @@
-import { Controller, Get, Res } from '@nestjs/common';
+import { Body, Controller, Get, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
@@ -13,9 +13,12 @@ export class PaymentController {
   }
 
   @Get('V4')
-  getPaymentPageV4(@Res() res: Response) {
+  getPaymentPageV4(@Res() res: Response, @Body() body: { amount: number }) {
     res.render('culqi_v4', {
       publicKey: 'pk_test_0d94058535f7fbea',
+      body: {
+        amount: 10000,
+      }
     });
   }
 

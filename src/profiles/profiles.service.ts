@@ -442,6 +442,7 @@ export class ProfilesService {
         where: {
           user_id: id,
         },
+        relations: ['gender','nationality']
       });
 
       if (!profile) {
