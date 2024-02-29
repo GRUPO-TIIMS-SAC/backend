@@ -11,6 +11,7 @@ import { Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import * as jwt from 'jsonwebtoken';
 import { Utils } from 'src/utils/utils';
+import { RequestsService } from 'src/requests/requests.service';
 
 @Injectable()
 export class PaymentService {
@@ -22,6 +23,7 @@ export class PaymentService {
         private userService: UsersService,
         private profilesService: ProfilesService,
         private jwtService: JwtService,
+        private requestService: RequestsService
     ) { }
 
     async sendPayment(token: any, body: SendOrderDto) {
@@ -89,6 +91,7 @@ export class PaymentService {
 
     async createOrder(body: CreateOrderDto) {
         try {
+            let change_status = null;
             const headersRequest = {
                 Authorization: 'Bearer sk_test_11af72fddb37df11',
                 'content-type': 'application/json',
@@ -107,7 +110,7 @@ export class PaymentService {
 
             console.log(decryptedBody);
 
-            const requiredProperties = ['id', 'amount', 'address', 'email', 'address_city', 'first_name', 'last_name', 'phone_number', 'documentNumber'];
+            const requiredProperties = ['request_id', 'id', 'amount', 'address', 'email', 'address_city', 'first_name', 'last_name', 'phone_number', 'documentNumber'];
             for (const prop of requiredProperties) {
                 if (!(prop in decryptedBody)) {
                     throw new Error(`Property ${prop} is missing in token body`);
@@ -150,9 +153,21 @@ export class PaymentService {
             const payment = this.paymentRepository.create(bodyPayment);
             const respData = await this.paymentRepository.save(payment);
 
+            if(response.data.object === 'charge'){
+                const respChange  = await this.requestService.changeStatus(decryptedBody.request_id, 'disponible', 'borrador');
+                
+                if(respChange.getStatus() != 200){
+                    change_status = 'Error to change status'
+                }else{
+                    change_status = 'Status changed'
+                }
+
+            }
+
             return new HttpException(
                 {
                     message: 'Order created',
+                    change_status: change_status,
                     data: respData
                 },
                 HttpStatus.OK,
