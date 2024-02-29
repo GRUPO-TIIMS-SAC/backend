@@ -60,4 +60,18 @@ export class PaymentController {
   weebhookResponse() {
     console.log('weebhook-response');
   }
+
+  @Get('tmp-wallet')
+  getTmpWallet(
+    @Headers('authorization') token: any,
+  ) {
+    return this.paymentService.tmpWallet(token);
+  }
+
+  @Get('history-wallet')
+  getHistoryWallet(
+    @Headers('authorization') token: any,
+  ) {
+    return this.paymentService.getHistoryWallet(token);
+  }
 }

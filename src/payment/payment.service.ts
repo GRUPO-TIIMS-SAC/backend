@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectRepository, } from '@nestjs/typeorm';
 import { Payment } from 'src/entities/payments.entity';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { HttpService } from '@nestjs/axios';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UsersService } from 'src/users/users.service';
@@ -145,7 +145,7 @@ export class PaymentService {
 
             const bodyPayment = {
                 user_id: decryptedBody.id,
-                amount: bodyRequest.amount/100,
+                amount: bodyRequest.amount / 100,
                 token_payment: response.data.id,
                 request_id: decryptedBody.request_id
             }
@@ -153,12 +153,12 @@ export class PaymentService {
             const payment = this.paymentRepository.create(bodyPayment);
             const respData = await this.paymentRepository.save(payment);
 
-            if(response.data.object === 'charge'){
-                const respChange  = await this.requestService.changeStatus(decryptedBody.request_id, 'disponible', 'borrador');
-                
-                if(respChange.getStatus() != 200){
+            if (response.data.object === 'charge') {
+                const respChange = await this.requestService.changeStatus(decryptedBody.request_id, 'disponible', 'borrador');
+
+                if (respChange.getStatus() != 200) {
                     change_status = 'Error to change status'
-                }else{
+                } else {
                     change_status = 'Status changed'
                 }
 
@@ -183,5 +183,102 @@ export class PaymentService {
             )
         }
 
+    }
+
+    async tmpWallet(token: any) {
+        try {
+            const tokenDecoded = this.userService.decodeToken(token);
+
+            if (!tokenDecoded.id) {
+                return new HttpException(
+                    { message: 'Token wrong' },
+                    HttpStatus.CONFLICT,
+                );
+            }
+
+            const user = await this.userService.findOne(tokenDecoded.id);
+
+            if (user.getStatus() != 200) {
+                return user;
+            }
+
+            const request_ids = await this.requestService.getAllRequestByUser(tokenDecoded.id);
+
+            console.log(request_ids.getResponse()['data']);
+
+            const wallet = await this.paymentRepository.createQueryBuilder('payment')
+                .where('payment.request_id IN (:...ids)', { ids: request_ids.getResponse()['data'] })
+                .select('SUM(payment.amount)', 'sum')
+                .getRawOne();
+
+            return new HttpException(
+                {
+                    message: 'Wallet',
+                    wallet: wallet.sum ?? 0
+                },
+                HttpStatus.OK,
+            );
+        } catch (error) {
+            return new HttpException(
+                {
+                    message: 'Error to get wallet',
+                    error: error.message
+                },
+                HttpStatus.INTERNAL_SERVER_ERROR
+            )
+        }
+    }
+
+    async getHistoryWallet(token: any){
+        try {
+            const tokenDecoded = this.userService.decodeToken(token);
+
+            if (!tokenDecoded.id) {
+                return new HttpException(
+                    { message: 'Token wrong' },
+                    HttpStatus.CONFLICT,
+                );
+            }
+
+            const user = await this.userService.findOne(tokenDecoded.id);
+
+            if (user.getStatus() != 200) {
+                return user;
+            }
+
+            const request_ids = await this.requestService.getAllRequestByUser(tokenDecoded.id);
+
+            console.log(request_ids.getResponse()['data']);
+
+            const wallet = await this.paymentRepository.find({
+                where: { request_id: In(request_ids.getResponse()['data']) }
+            })
+
+            if(wallet.length === 0){
+                return new HttpException(
+                    {
+                        message: 'history wallet not found',
+                        data: []
+                    },
+                    HttpStatus.OK,
+                );
+            }
+
+            return new HttpException(
+                {
+                    message: 'history wallet',
+                    data: wallet
+                },
+                HttpStatus.OK,
+            );
+        } catch (error) {
+            return new HttpException(
+                {
+                    message: 'Error to get wallet',
+                    error: error.message
+                },
+                HttpStatus.INTERNAL_SERVER_ERROR
+            )
+        }
     }
 }
