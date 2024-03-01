@@ -261,11 +261,15 @@ export class RequestsService {
             if (user.getStatus() != 200) {
                 return user;
             }
-
+            
             const services = await this.servicesService.getBySpecialist(user.getResponse()['data']['id']);
 
             if (services.getStatus() != 200) {
-                return services;
+                console.log(services);
+                return new HttpException(
+                    { message: 'Requests not found', data: [] },
+                    HttpStatus.NOT_FOUND
+                );
             }
 
             let statusRequestString;
