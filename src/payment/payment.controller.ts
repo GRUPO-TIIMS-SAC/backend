@@ -13,14 +13,16 @@ export class PaymentController {
   @Get()
   getPaymentPage(@Res() res: Response) {
     res.render('culqi_checkout', {
-      publicKey: 'pk_test_0d94058535f7fbea',
+      //publicKey: 'pk_test_0d94058535f7fbea',
+      publicKey: 'pk_live_6b494ad367217f9c',
     });
   }
 
   @Get('V4')
   getPaymentPageV4(@Res() res: Response, @Body() body: { amount: number }) {
     res.render('culqi_v4', {
-      publicKey: 'pk_test_0d94058535f7fbea',
+      //publicKey: 'pk_test_0d94058535f7fbea',
+      publicKey: 'pk_live_6b494ad367217f9c',
       amount: 50000,
       body: body,
     });
@@ -31,7 +33,8 @@ export class PaymentController {
   @Param('token') token: string,
   @Param('amount') amount: number){
     res.render('culqi_v4', {
-      publicKey: 'pk_test_0d94058535f7fbea',
+      publicKey: 'pk_live_6b494ad367217f9c',
+      //publicKey: 'pk_test_0d94058535f7fbea',
       amount: amount,
       body: token,
     });
@@ -40,7 +43,8 @@ export class PaymentController {
   @Get('new')
   getPaymentPageNew(@Res() res: Response) {
     res.render('culqi_checkout_new', {
-      publicKey: 'pk_test_0d94058535f7fbea',
+      publicKey: 'pk_live_6b494ad367217f9c',
+      //publicKey: 'pk_test_0d94058535f7fbea',
     });
   }
 
