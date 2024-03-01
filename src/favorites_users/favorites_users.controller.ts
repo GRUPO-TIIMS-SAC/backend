@@ -3,7 +3,7 @@ import { FavoritesUsersService } from './favorites_users.service';
 import { ICreateFavoriteUser } from './dto/create-favorite_user.dto';
 import { ApiBearerAuth, ApiHeader, ApiTags } from '@nestjs/swagger';
 
-@ApiTags('favorites-users')
+@ApiTags('Favorites Users')
 @Controller('favorites-users')
 export class FavoritesUsersController {
   constructor(private readonly favoritesUsersService: FavoritesUsersService) {}

@@ -5,6 +5,7 @@ import { SpecialitiesService } from 'src/specialities/specialities.service';
 import { Repository } from 'typeorm';
 import { CreateSubSpecialityDto } from './dto/create_subspecialities.dto';
 import { UpdateSubSpecialtyDto } from './dto/update_subspecialities.dto';
+import { ServicesService } from 'src/services/services.service';
 
 @Injectable()
 export class SubspecialitiesService {
@@ -12,53 +13,108 @@ export class SubspecialitiesService {
     @InjectRepository(SubSpeciality)
     private readonly subSpecialityRepository: Repository<SubSpeciality>,
     private readonly specialityService: SpecialitiesService,
-  ) {}
+  ) { }
 
   async create(body: CreateSubSpecialityDto) {
-    const validSpeciality = await this.specialityService.getOne(body.speciality_id);
-
-    if (!validSpeciality) {
-      throw new HttpException('Speciality not found', HttpStatus.NOT_FOUND);
-    }
-
-    const subSpecialityExists = await this.subSpecialityRepository.findOne({
-      where: {
-        speciality_id: body.speciality_id,
-        name: body.name,
-      },
-    });
-
-    if (subSpecialityExists) {
-      throw new HttpException('Speciality already exists', HttpStatus.CONFLICT);
-    }
-
     try {
+      const validSpeciality = await this.specialityService.getOne(
+        body.speciality_id,
+      );
+
+      if (!validSpeciality) {
+        return new HttpException('Speciality not found', HttpStatus.NOT_FOUND);
+      }
+
+      const subSpecialityExists = await this.subSpecialityRepository.findOne({
+        where: {
+          speciality_id: body.speciality_id,
+          name: body.name,
+        },
+      });
+
+      if (subSpecialityExists) {
+        return new HttpException(
+          'Speciality already exists',
+          HttpStatus.CONFLICT,
+        );
+      }
+
       const newProfile = this.subSpecialityRepository.create(body);
+      const respData = await this.subSpecialityRepository.save(newProfile);
       return new HttpException(
-        { data: newProfile, message: 'Speciality created' },
+        { data: respData, message: 'Speciality created' },
         HttpStatus.CREATED,
       );
     } catch (error) {
       console.log('Error: ', error);
-      throw new HttpException('Error creating profile', HttpStatus.CONFLICT);
+      return new HttpException(
+        { message: 'Error creating profile' },
+        HttpStatus.CONFLICT,
+      );
     }
   }
 
-  async getAll(){
+  async getAll() {
     try {
-      const profiles = await this.subSpecialityRepository.find();
-    
-      if(profiles.length === 0){
-        throw new HttpException('No profiles found', HttpStatus.NOT_FOUND);
+      const subspecialities = await this.subSpecialityRepository.find();
+      if (subspecialities.length === 0) {
+        return new HttpException(
+          { message: 'No subspecialities found' },
+          HttpStatus.NOT_FOUND,
+        );
       }
 
       return new HttpException(
-        { data: profiles, message: 'Specialities found' },
+        { data: subspecialities, message: 'Subspeciality found' },
         HttpStatus.OK,
       );
     } catch (error) {
       console.log('Error: ', error);
-      throw new HttpException('Error finding profiles', HttpStatus.CONFLICT);
+      return new HttpException(
+        { message: 'Error finding profiles' },
+        HttpStatus.CONFLICT,
+      );
+    }
+  }
+
+  async getBySpeciality(speciality_id: number) {
+    try {
+      const speciality = await this.specialityService.getOne(speciality_id);
+
+      if (speciality.getStatus() !== 200) {
+        return speciality;
+      }
+
+      const specialityName = speciality.getResponse()['data']['name'];
+
+      const subspecialities = await this.subSpecialityRepository.find({
+        where: {
+          speciality_id: speciality_id,
+        },
+      });
+
+      if (subspecialities.length === 0) {
+        return new HttpException(
+          { message: 'No subspecialities found', data: [] },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      return new HttpException(
+        {
+          data: subspecialities.map((element) => {
+            return { id: element.id, name: element.name };
+          }),
+          message: `Subspeciality of ${specialityName} found`,
+        },
+        HttpStatus.OK,
+      );
+    } catch (error) {
+      console.log('Error: ', error);
+      return new HttpException(
+        { message: 'Error finding profiles' },
+        HttpStatus.CONFLICT,
+      );
     }
   }
 
@@ -68,9 +124,11 @@ export class SubspecialitiesService {
         where: {
           id: id,
         },
+        relations: ['speciality'],
       });
-    
-      if(!profile){
+      console.log({ profile })
+
+      if (!profile) {
         throw new HttpException('Profile not found', HttpStatus.NOT_FOUND);
       }
 
@@ -91,12 +149,15 @@ export class SubspecialitiesService {
           id: id,
         },
       });
-    
-      if(!profile){
+
+      if (!profile) {
         throw new HttpException('Profile not found', HttpStatus.NOT_FOUND);
       }
 
-      const updatedProfile = await this.subSpecialityRepository.update(id, body);
+      const updatedProfile = await this.subSpecialityRepository.update(
+        id,
+        body,
+      );
 
       return new HttpException(
         { data: updatedProfile, message: 'Profile updated' },
@@ -106,5 +167,5 @@ export class SubspecialitiesService {
       console.log('Error: ', error);
       throw new HttpException('Error updating profile', HttpStatus.CONFLICT);
     }
-  }    
+  }
 }

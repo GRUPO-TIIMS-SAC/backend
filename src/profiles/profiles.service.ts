@@ -12,6 +12,8 @@ import { ValidateUserProcessStatusDto } from './dto/validate-user-process-status
 import * as multer from 'multer';
 import { FilesService } from 'src/files/files.service';
 import { DeleteFileDto } from 'src/files/dto/delete-file.dto';
+import { Utils } from 'src/utils/utils';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class ProfilesService {
@@ -333,10 +335,7 @@ export class ProfilesService {
       }
 
       const fileResp = file.getResponse();
-      if (
-        typeof fileResp === 'object' &&
-        'file_name' in fileResp
-      ) {
+      if (typeof fileResp === 'object' && 'file_name' in fileResp) {
         route = fileResp.file_name;
       } else {
         return new HttpException(
@@ -349,12 +348,14 @@ export class ProfilesService {
       }
 
       //DELETE OLD PROFILE PHOTO
-      const body: DeleteFileDto ={
-        dir: 'images_upload',
-        file: profile.profile_photo
-      }
+      if (profile.profile_photo !== null) {
+        const body: DeleteFileDto = {
+          dir: 'images_upload',
+          file: profile.profile_photo,
+        };
 
-      await this.fileService.deleteStorageFile(body);
+        await this.fileService.deleteStorageFile(body);
+      }
 
       //UPDATE PROFILE
       const updateProfile = Object.assign(profile, {
@@ -370,8 +371,184 @@ export class ProfilesService {
         HttpStatus.OK,
       );
     } catch (error) {
+      console.log(error);
       return new HttpException(
-        { message: 'Error adding profile photo' },
+        { message: 'Error adding profile photo', error: error.message },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getProfile(token: any) {
+    try {
+      const tokenDecoded = this.userService.decodeToken(token);
+
+      if (!tokenDecoded.id) {
+        return new HttpException(
+          { message: 'Token wrong' },
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      const userData = await this.userService.findOne(tokenDecoded.id);
+
+      if(userData.getStatus() !== 200){
+        return userData;
+      }
+
+      const profile = await this.profileRepository.findOne({
+        where: {
+          user_id: tokenDecoded.id,
+        },
+      });
+
+      if (!profile) {
+        return new HttpException(
+          { message: 'Profile not found' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      return new HttpException(
+        {
+          message: 'Profile found',
+          data: {
+            ...profile,
+            profile_photo: new Utils().route() + '/images_upload/' + profile.profile_photo,
+            name: userData.getResponse()['data'].fullname,
+            email: userData.getResponse()['data'].email,
+          },
+        },
+        HttpStatus.OK,
+      );
+    } catch (error) {
+      return new HttpException(
+        { message: 'Error getting profile' },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getByuser(id: number) {
+    try {
+
+      const userData = await this.userService.findOne(id);
+
+      if(userData.getStatus() !== 200){
+        return userData;
+      }
+
+      const profile = await this.profileRepository.findOne({
+        where: {
+          user_id: id,
+        },
+        relations: ['gender','nationality']
+      });
+
+      if (!profile) {
+        return new HttpException(
+          { message: 'Profile not found' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      return new HttpException(
+        {
+          message: 'Profile found',
+          data: profile,
+        },
+        HttpStatus.OK,
+      );
+    } catch (error) {
+      return new HttpException(
+        { message: 'Error getting profile' },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getProfilePhoto(token: any) {
+    try {
+      const tokenDecoded = this.userService.decodeToken(token);
+
+      if (!tokenDecoded.id) {
+        return new HttpException(
+          { message: 'Token wrong' },
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      const profile = await this.profileRepository.findOne({
+        where: {
+          user_id: tokenDecoded.id,
+        },
+      });
+
+      if (!profile) {
+        return new HttpException(
+          { message: 'Profile not found' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      if (profile.profile_photo === null) {
+        return new HttpException(
+          { message: 'Profile photo not found' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      return new HttpException(
+        {
+          message: 'Profile photo found',
+          data: new Utils().route() + '/images_upload/' + profile.profile_photo,
+        },
+        HttpStatus.OK,
+      );
+    } catch (error) {
+      return new HttpException(
+        { message: 'Error getting profile photo' },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async updateProfile(token: any, body: UpdateProfileDto) {
+    try {
+      const tokenDecoded = this.userService.decodeToken(token);
+
+      if (!tokenDecoded.id) {
+        return new HttpException(
+          { message: 'Token wrong' },
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      const profile = await this.profileRepository.findOne({
+        where: {
+          user_id: tokenDecoded.id,
+        },
+      });
+
+      if (!profile) {
+        return new HttpException(
+          { message: 'Profile not found' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const updateProfile = Object.assign(profile, body);
+      const respData = await this.profileRepository.save(updateProfile);
+      return new HttpException(
+        {
+          message: 'Profile updated',
+          data: respData,
+        },
+        HttpStatus.OK,
+      );
+    } catch (error) {
+      return new HttpException(
+        { message: 'Error updating profile' },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

@@ -12,8 +12,8 @@ import { DeleteFileDto } from './dto/delete-file.dto';
 
 const writeFileAsync = promisify(writeFile);
 const mkdirAsync = promisify(fs.mkdir);
-const uploadDirectoryPdf = path.join(__dirname, './uploads/documents_upload');
-const uploadDirectoryImg = path.join(__dirname, './uploads/images_upload');
+const uploadDirectoryPdf = path.join(__dirname, '..','..', 'uploads', 'documents_upload');
+const uploadDirectoryImg = path.join(__dirname, '..','..', 'uploads', 'images_upload');
 
 @Injectable()
 export class FilesService {
@@ -67,13 +67,22 @@ export class FilesService {
 
   async uploadFileMulterImage(req: multer.File) {
     const file = req;
+    let extension;
     console.log(req);
     console.log(file.mimetype);
-    const extension = file.mimeType.split('/')[1];
+
+    if(file.mimeType){
+      extension = file.mimeType.split('/')[1];
+      console.log(extension);
+    }else{
+      extension = 'png';
+    }
+
     const fileName = new Date().getTime().toString() + '.' + extension;
     // const uploadDirectory = path.resolve(__dirname, './uploads/documents_upload');
-    console.log(uploadDirectoryImg);
+    console.log(fileName);
     const filePath = path.join(uploadDirectoryImg, fileName);
+    console.log(filePath);
 
     // Crear el directorio si no existe
     if (!fs.existsSync(uploadDirectoryImg)) {
@@ -81,12 +90,13 @@ export class FilesService {
     }
 
     // Validar que el archivo es de tipo PDF
-    if (file.mimetype !== 'image/png' && file.mimetype !== 'image/jpg') {
+    //TODO VALIDAR MÁS ADELANTE
+    /* if (file.mimetype !== 'image/png' && file.mimetype !== 'image/jpg') {
       return new HttpException(
         { message: 'Invalid file type. Only PNG and JPG is allowed' },
         HttpStatus.BAD_REQUEST,
       );
-    }
+    } */
 
     // Validar que el tamaño del archivo no supera 1MB
     if (file.size > 1024 * 1024 * 0.5) {
@@ -104,6 +114,7 @@ export class FilesService {
       );
       // ...
     } catch (error) {
+      console.log(error)
       return new HttpException(
         { message: 'Error creating extra document', error: error.message },
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -113,10 +124,12 @@ export class FilesService {
 
   async deleteStorageFile(body: DeleteFileDto) {
     // Define la ruta al archivo que quieres eliminar
-    const filePath = path.join(__dirname, 'uploads', body.dir, body.file);
+    const filePath = path.join(__dirname, '..','..','uploads', body.dir, body.file);
+    console.log(filePath);
 
     fs.unlink(filePath, (err) => {
       if (err) {
+        console.log(err);
         return new HttpException(
           { message: 'Error deleting file', error: err.message },
           HttpStatus.INTERNAL_SERVER_ERROR,

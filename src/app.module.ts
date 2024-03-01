@@ -22,6 +22,9 @@ import { ExtraDocumentsModule } from './extra_documents/extra_documents.module';
 import { FilesModule } from './files/files.module';
 import { ExtraDocumentsListModule } from './extra_documents_list/extra_documents_list.module';
 import { ImgsFilesModule } from './imgs_files/imgs_files.module';
+import { ServicesModule } from './services/services.module';
+import { PaymentModule } from './payment/payment.module';
+import { LiveNotificationsModule } from './live_notifications/live_notifications.module';
 
 @Module({
   imports: [
@@ -54,6 +57,9 @@ import { ImgsFilesModule } from './imgs_files/imgs_files.module';
     FilesModule,
     ExtraDocumentsListModule,
     ImgsFilesModule,
+    ServicesModule,
+    PaymentModule,
+    LiveNotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService, ],
