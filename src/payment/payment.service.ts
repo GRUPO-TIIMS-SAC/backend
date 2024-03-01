@@ -93,7 +93,8 @@ export class PaymentService {
         try {
             let change_status = null;
             const headersRequest = {
-                Authorization: 'Bearer sk_test_11af72fddb37df11',
+                //Authorization: 'Bearer sk_test_11af72fddb37df11',
+                Authorization: 'Bearer sk_live_a352620e7c754482',
                 'content-type': 'application/json',
             };
 
