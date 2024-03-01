@@ -54,6 +54,13 @@ export class RequestsController {
         return this.requestsService.changeStatus(id, 'ejecutando', 'aceptado');
     }
 
+    @Patch('finish/:id')
+    async finishRequest(
+        @Param('id', ParseIntPipe) id: number ,
+    ) {
+        return this.requestsService.changeStatus(id, 'realizado', 'ejecutando');
+    }
+
     @Post('validate-code')
     async validateCode(
         @Body() body: ValidateCodeDto,
