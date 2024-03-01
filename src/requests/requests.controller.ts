@@ -40,6 +40,13 @@ export class RequestsController {
         return this.requestsService.changeStatus(id, 'disponible', 'borrador');
     }
 
+    @Get('is-paid/:id')
+    async isPaid(
+        @Param('id', ParseIntPipe) id: number ,
+    ) {
+        return this.requestsService.isPaid(id);
+    }
+
     @Patch('execute/:id')
     async executeRequest(
         @Param('id', ParseIntPipe) id: number ,
