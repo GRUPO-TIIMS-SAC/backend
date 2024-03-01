@@ -397,6 +397,28 @@ export class RequestsService {
         }
     }
 
+    async isPaid(id: number) {
+        try {
+            const request = await this.requestsRepository.findOne({
+                where: {
+                    id: id,
+                    status_request_id: 1
+                }
+            });
+
+            console.log(request);
+
+            if (!request) {
+                return false;
+            }
+
+            return true;
+        } catch (error) {
+            console.log(error);
+            return false;
+        }
+    }
+
     async getAllRequestByUser(user_id: number) {
         try {
             const user = await this.userService.findOne(user_id);
