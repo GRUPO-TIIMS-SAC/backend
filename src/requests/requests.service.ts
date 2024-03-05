@@ -315,9 +315,134 @@ export class RequestsService {
                 const profileSpecialistData = profileSpecialist.getResponse()['data'];
                 const userSpecialistData = userSpecialist.getResponse()['data'];
 
+                const date = new Utils().correctDate(request.date_service.toISOString());
+                console.log(date);
+
                 return {
                     id: request.id,
-                    date_service: request.date_service,
+                    date_service: new Utils().correctDate(request.date_service.toISOString()),
+                    amount: request.amount,
+                    code_service: request.code_service,
+                    district: request.district,
+                    address: request.address,
+                    location: {
+                        longitude: request.longitude,
+                        latitude: request.latitude,
+                    },
+                    bill: request.bill,
+                    subspeciality: subspeciality.getResponse()['data']['name'],
+                    speciality: subspeciality.getResponse()['data']['speciality']['name'],
+                    user: {
+                        email: request.user.email,
+                        fullname: request.user.fullname,
+                        profile_photo: new Utils().route() + '/images_upload/' + profileData['profile_photo'],
+                        nationality: profileData['nationality']['nationality'],
+                        age: new Utils().calculateAge(profileData['born_date'])
+                    },
+                    specialist: {
+                        email: userSpecialistData.email,
+                        fullname: userSpecialistData.fullname,
+                        profile_photo: new Utils().route() + '/images_upload/' + profileSpecialistData['profile_photo'],
+                        nationality: profileSpecialistData['nationality']['nationality'],
+                        age: new Utils().calculateAge(profileSpecialistData['born_date'])
+                    }
+
+                }
+            }
+            ));
+
+            return new HttpException({
+                message: 'Requests found',
+                // data: requests
+                data: requestWithSubspeciality
+            }, HttpStatus.OK);
+
+        } catch (error) {
+            return new HttpException(
+                {
+                    message: 'Error getting requests',
+                    error: error
+                },
+                HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+    }
+
+    async getAllBySpecialistUser(token: any, filter?: string) {
+        try {
+            const tokenDecoded = this.userService.decodeToken(token);
+
+            if (!tokenDecoded.id) {
+                return new HttpException(
+                    { message: 'Token wrong' },
+                    HttpStatus.CONFLICT,
+                );
+            }
+
+            const user = await this.userService.findOne(tokenDecoded.id);
+
+            if (user.getStatus() != 200) {
+                return user;
+            }
+            
+            const services = await this.servicesService.getBySpecialist(user.getResponse()['data']['id']);
+
+            if (services.getStatus() != 200) {
+                console.log(services);
+                return new HttpException(
+                    { message: 'Requests not found', data: [] },
+                    HttpStatus.NOT_FOUND
+                );
+            }
+
+            let statusRequestString;
+
+            switch (filter) {
+                case 'available':
+                    statusRequestString = 'disponible';
+                    break;
+                case 'accepted':
+                    statusRequestString = 'aceptado';
+                    break;
+                case 'history':
+                    statusRequestString = 'realizado';
+                    break;
+                default:
+                    statusRequestString = 'disponible';
+                    break;
+            }
+
+            const statusRequest = await this.statusRequestService.getByStatus(statusRequestString);
+            const requests = await this.requestsRepository.find({
+                where: {
+                    service_id: In(services.getResponse()['ids']),
+                    user_id: tokenDecoded.id,
+                },
+                relations: ['user', 'service']
+            });
+
+            if (!requests || requests.length == 0) {
+                return new HttpException(
+                    { message: 'Requests not found', data: [] },
+                    HttpStatus.NOT_FOUND
+                );
+            }
+
+            const requestWithSubspeciality = await Promise.all(requests.map(async (request) => {
+
+                const subspeciality = await this.subSpecialitiesService.getOne(request.service.subspeciality_id);
+                const profile = await this.profileService.getByuser(request.user.id);
+                const profileSpecialist = await this.profileService.getByuser(request.service.user_id);
+                const userSpecialist = await this.userService.findOne(request.service.user_id);
+                const profileData = profile.getResponse()['data'];
+                const profileSpecialistData = profileSpecialist.getResponse()['data'];
+                const userSpecialistData = userSpecialist.getResponse()['data'];
+
+                const date = new Utils().correctDate(request.date_service.toISOString());
+                console.log(date);
+
+                return {
+                    id: request.id,
+                    date_service: new Utils().correctDate(request.date_service.toISOString()),
                     amount: request.amount,
                     code_service: request.code_service,
                     district: request.district,
@@ -470,4 +595,6 @@ export class RequestsService {
                 HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
+
+    
 }

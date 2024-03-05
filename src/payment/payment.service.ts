@@ -61,7 +61,7 @@ export class PaymentService {
                 address: profileData.address,
                 address_city: profileData.department,
                 email: userData.email,
-                first_name: userData.fullname,
+                first_name: userData.fullname.split(' ')[0],
                 last_name: userData.fullname,
                 phone_number: profileData.phone,
                 documentNumber: profileData.number_document,
