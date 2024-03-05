@@ -76,6 +76,14 @@ export class RequestsController {
         return this.requestsService.getAllBySpecialist(token, filter);
     }
 
+    @Get('requested/:filter')
+    async getAllBySpecialistUser(
+        @Headers('authorization') token: any,
+        @Param('filter') filter: string,
+    ) {
+        return this.requestsService.getAllBySpecialistUser(token, filter);
+    }
+
     @Get('calendar/:month')
     async getCalendar(
         @Headers('authorization') token: any,
