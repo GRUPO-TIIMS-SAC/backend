@@ -1,4 +1,4 @@
-export interface CreateUpdateDocument{
+export class CreateUpdateDocument{
     id?: number;
     document: string;
 } 
