@@ -384,15 +384,15 @@ export class RequestsService {
                 return user;
             }
             
-            const services = await this.servicesService.getBySpecialist(user.getResponse()['data']['id']);
+            // const services = await this.servicesService.getBySpecialist(user.getResponse()['data']['id']);
 
-            if (services.getStatus() != 200) {
+            /* if (services.getStatus() != 200) {
                 console.log(services);
                 return new HttpException(
                     { message: 'Requests not found', data: [] },
                     HttpStatus.NOT_FOUND
                 );
-            }
+            } */
 
             let statusRequestString;
 
@@ -403,8 +403,14 @@ export class RequestsService {
                 case 'accepted':
                     statusRequestString = 'aceptado';
                     break;
+                case 'rejected':
+                    statusRequestString = 'rechazado';
+                    break;
                 case 'history':
                     statusRequestString = 'realizado';
+                    break;
+                case 'now':
+                    statusRequestString = 'ejecutando';
                     break;
                 default:
                     statusRequestString = 'disponible';
@@ -414,7 +420,7 @@ export class RequestsService {
             const statusRequest = await this.statusRequestService.getByStatus(statusRequestString);
             const requests = await this.requestsRepository.find({
                 where: {
-                    service_id: In(services.getResponse()['ids']),
+                    status_request_id: statusRequest.getResponse()['data']['id'],
                     user_id: tokenDecoded.id,
                 },
                 relations: ['user', 'service']
