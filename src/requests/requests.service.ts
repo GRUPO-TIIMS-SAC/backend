@@ -261,7 +261,7 @@ export class RequestsService {
             if (user.getStatus() != 200) {
                 return user;
             }
-            
+
             const services = await this.servicesService.getBySpecialist(user.getResponse()['data']['id']);
 
             if (services.getStatus() != 200) {
@@ -283,6 +283,9 @@ export class RequestsService {
                     break;
                 case 'history':
                     statusRequestString = 'realizado';
+                    break;
+                case 'now':
+                    statusRequestString = 'ejecutando';
                     break;
                 default:
                     statusRequestString = 'disponible';
@@ -383,7 +386,7 @@ export class RequestsService {
             if (user.getStatus() != 200) {
                 return user;
             }
-            
+
             // const services = await this.servicesService.getBySpecialist(user.getResponse()['data']['id']);
 
             /* if (services.getStatus() != 200) {
@@ -602,5 +605,5 @@ export class RequestsService {
         }
     }
 
-    
+
 }
