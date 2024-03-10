@@ -25,6 +25,7 @@ import { ImgsFilesModule } from './imgs_files/imgs_files.module';
 import { ServicesModule } from './services/services.module';
 import { PaymentModule } from './payment/payment.module';
 import { LiveNotificationsModule } from './live_notifications/live_notifications.module';
+import { DocumentPoliticsModule } from './document_politics/document_politics.module';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { LiveNotificationsModule } from './live_notifications/live_notifications
     ServicesModule,
     PaymentModule,
     LiveNotificationsModule,
+    DocumentPoliticsModule,
   ],
   controllers: [AppController],
   providers: [AppService, ],
