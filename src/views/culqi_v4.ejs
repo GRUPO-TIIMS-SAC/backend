@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Pagos Tiims</title>
+    <script src="functions_scripts.js"></script>
+    <style>
+        /* Estilos para la pantalla de carga */
+        #loading {
+            display: none;
+            /* Inicialmente oculto */
+            position: fixed;
+            /* Fijo en la pantalla */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            /* Fondo semi-transparente */
+            z-index: 1000;
+            /* Por encima de todo lo demás */
+        }
+
+        /* Estilos para el spinner de carga */
+        #loading .spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loading">
+        <div class="spinner">
+            Loading...
+        </div>
+    </div>
+
+    <script src="https://checkout.culqi.com/js/v4"></script>
+    <script>
+        Culqi.publicKey = '<%- publicKey %>';
+        Culqi.settings({
+            title: 'TIIMS',
+            currency: 'PEN',
+            amount: '<%= amount %>',
+        });
+
+        Culqi.options({
+            lang: "auto",
+            installments: false, // Habilitar o deshabilitar el campo de cuotas
+            paymentMethods: {
+                tarjeta: true,
+                yape: true,
+                bancaMovil: false,
+                agente: false,
+                billetera: false,
+                cuotealo: false,
+            },
+            style: {
+                logo: "https://static.culqi.com/v2/v2/static/img/logo.png",
+            }
+        });
+
+        Culqi.options({
+            style: {
+                logo: 'https://culqi.com/LogoCulqi.png',
+                bannerColor: '', // hexadecimal
+                buttonBackground: '', // hexadecimal
+                menuColor: '', // hexadecimal
+                linksColor: '', // hexadecimal
+                buttonText: '', // texto que tomará el botón
+                buttonTextColor: '', // hexadecimal
+                priceColor: '' // hexadecimal
+            }
+        });
+
+        function culqi() {
+            // Muestra la pantalla de carga
+            document.getElementById('loading').style.display = 'block';
+
+            if (Culqi.token) {  // ¡Objeto Token creado exitosamente!
+                const token = Culqi.token.id;
+                console.log('Se ha creado un Token: ', token);
+                //En esta linea de codigo debemos enviar el "Culqi.token.id"
+                //hacia tu servidor con Ajax
+                const data = {
+                    token: token,
+                    tokenBody: '<%= body %>'
+                };
+
+                const body = JSON.stringify(data);
+
+                const options = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: body
+                };
+
+                fetch('/payment/create-order', options)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('loading').style.display = 'none';
+                        console.log('Respuesta del servidor: ', data);
+                        if (data.status === 200) {
+                            alert('Pago exitoso');
+                        } else {
+                            alert('Ocurrió un error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('loading').style.display = 'none';
+                    });
+            } else if (Culqi.order) {  // ¡Objeto Order creado exitosamente!
+                const order = Culqi.order;
+                console.log('Se ha creado el objeto Order: ', order);
+                document.getElementById('loading').style.display = 'none';
+            } else {
+                // Mostramos JSON de objeto error en consola
+                console.log('Error : ', Culqi.error);
+                document.getElementById('loading').style.display = 'none';
+            }
+        };
+
+        const btn_pagar = document.getElementById('btn_pagar');
+
+        Culqi.culqi = () => {
+            console.log('Se llama a la función Culqi.culqi');
+        }
+
+        Culqi.open();
+
+
+        btn_pagar.addEventListener('click', function (e) {
+            // Abre el formulario con la configuración en Culqi.settings y CulqiOptions
+            console.log('Abriendo formulario de pago');
+            Culqi.open();
+            e.preventDefault();
+        })
+    </script>
+</body>
+
+</html>

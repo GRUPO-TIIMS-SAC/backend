@@ -1,0 +1,97 @@
+<body>
+    <button id="btn_pagar">Pagar</button>
+
+    <script src="https://js.culqi.com/checkout-js"></script>
+    <script>
+        const settings = {
+            title: 'Culqi  store 2',
+            currency: 'PEN', // Este parámetro es requerido para realizar pagos yape
+            amount: 8000, // Este parámetro es requerido para realizar pagos yape(80.00)
+            order: 'ord_live_d1P0Tu1n7Od4nZdp', // Este parámetro es requerido para realizar pagos con pagoEfectivo, billeteras y Cuotéalo
+                /* xculqirsaid: 'Inserta aquí el id de tu llave pública RSA',
+                rsapublickey: 'Inserta aquí tu llave pública RSA', */
+        }
+    </script>
+    <script>
+        const client = {
+            email: 'test2@demo.com',
+        }
+    </script>
+    <script>
+        const paymentMethods = {// las opciones se ordenan según se configuren
+            tarjeta: true,
+            yape: true,
+            billetera: true,
+            bancaMovil: true,
+            agente: true,
+            cuotealo: true,
+        }
+
+        const options = {
+            lang: 'auto',
+            installments: true, // Habilitar o deshabilitar el campo de cuotas
+            modal: true,
+            container: "#culqi-container", // Opcional - Div donde quieres cargar el checkout
+            paymentMethods: paymentMethods,
+            paymentMethodsSort: Object.keys(paymentMethods), // las opciones se ordenan según se configuren en paymentMethods
+        }
+    </script>
+    <script>
+        const appearance = {
+            theme: "default",
+            hiddenCulqiLogo: false,
+            hiddenBannerContent: false,
+            hiddenBanner: false,
+            hiddenToolBarAmount: false,
+            menuType: "sidebar", // sidebar / sliderTop / select
+            buttonCardPayText: "Pagar tal monto", // 
+            logo: null, // 'http://www.childrensociety.ms/wp-content/uploads/2019/11/MCS-Logo-2019-no-text.jpg',
+            defaultStyle: {
+                bannerColor: "blue", // hexadecimal
+                buttonBackground: "yellow", // hexadecimal
+                menuColor: "pink", // hexadecimal
+                linksColor: "green", // hexadecimal
+                buttonTextColor: "blue", // hexadecimal
+                priceColor: "red",
+            },
+        };
+    </script>
+    <script>
+
+        const config = {
+            settings,
+            client,
+            options,
+            appearance,
+        };
+
+        const publicKey = 'pk_test_0d94058535f7fbea';
+        const Culqi = new CulqiCheckout(publicKey, config);
+
+        const btn_pagar = document.getElementById('btn_pagar');
+
+        Culqi.open();
+        
+        btn_pagar.addEventListener('click', function (e) {
+            e.preventDefault();
+        })
+    </script>
+    <script>
+        const handleCulqiAction = () => {
+            if (Culqi.token) {
+                const token = Culqi.token.id;
+                console.log('Se ha creado un Token: ', token);
+                //En esta linea de codigo debemos enviar el "Culqi.token.id"
+                //hacia tu servidor con Ajax
+            } else if (Culqi.order) { // ¡Objeto Order creado exitosamente!
+                const order = Culqi.order;
+                console.log('Se ha creado el objeto Order: ', order);
+            } else {
+                // Mostramos JSON de objeto error en consola
+                console.log('Error : ', Culqi.error);
+            }
+        }
+
+        Culqi.culqi = handleCulqiAction;
+    </script>
+</body>
