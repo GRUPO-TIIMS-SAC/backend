@@ -15,7 +15,7 @@ async function bootstrap() {
   app.use('/documents_upload', express.static(join(__dirname, '..', 'uploads', 'documents_upload')));
   app.use('/images_upload', express.static(join(__dirname, '..', 'uploads', 'images_upload')));
 
-  app.useStaticAssets(join(__dirname, '..','view'));
+  app.useStaticAssets(join(__dirname,'..','view'));
   app.setViewEngine('ejs');
 
   admin.initializeApp({
