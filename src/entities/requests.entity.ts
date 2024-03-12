@@ -38,7 +38,7 @@ export class Request {
   @Column({ nullable: true })
   payment_id: number;
 
-  @Column({ nullable: false })
+  @Column({type: 'double', nullable: false })
   amount: number;
 
   @Column({ length: 8, nullable: false })

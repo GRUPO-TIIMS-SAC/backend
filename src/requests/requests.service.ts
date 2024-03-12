@@ -11,6 +11,7 @@ import { SpecialitiesService } from 'src/specialities/specialities.service';
 import { ProfilesService } from 'src/profiles/profiles.service';
 import { Utils } from 'src/utils/utils';
 import { ValidateCodeDto } from './dto/validated-code.dto';
+import { query } from 'express';
 
 
 @Injectable()
@@ -195,6 +196,9 @@ export class RequestsService {
                 const profileSpecialistData = profileSpecialist.getResponse()['data'];
                 const userSpecialistData = userSpecialist.getResponse()['data'];
 
+                const date = await this.requestsRepository.query(`SELECT date_service FROM request WHERE id = ${request.id}`);
+                console.log(date);
+
                 return {
                     id: request.id,
                     date_service: request.date_service,
@@ -318,7 +322,7 @@ export class RequestsService {
                 const profileSpecialistData = profileSpecialist.getResponse()['data'];
                 const userSpecialistData = userSpecialist.getResponse()['data'];
 
-                const date = new Utils().correctDate(request.date_service.toISOString());
+                const date = await this.requestsRepository.query(`SELECT date_service FROM request WHERE id = ${request.id}`);
                 console.log(date);
 
                 return {
@@ -446,12 +450,12 @@ export class RequestsService {
                 const profileSpecialistData = profileSpecialist.getResponse()['data'];
                 const userSpecialistData = userSpecialist.getResponse()['data'];
 
-                const date = new Utils().correctDate(request.date_service.toISOString());
-                console.log(date);
+                const date = await this.requestsRepository.query(`SELECT date_service FROM requests WHERE id = ${request.id}`);
+                console.log(request.id)
 
                 return {
                     id: request.id,
-                    date_service: new Utils().correctDate(request.date_service.toISOString()),
+                    date_service: date[0].date_service,
                     amount: request.amount,
                     code_service: request.code_service,
                     district: request.district,
