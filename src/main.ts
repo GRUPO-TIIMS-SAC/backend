@@ -5,6 +5,7 @@ import { join } from 'path';
 import { NestFactory } from '@nestjs/core';
 import * as admin from 'firebase-admin';
 import * as express from 'express';
+import { getConnection, getManager } from 'typeorm';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -31,6 +32,6 @@ async function bootstrap() {
 
   SwaggerModule.setup('api/docs', app, document);
 
-  await app.listen(4001);
+  await app.listen(4000);
 }
 bootstrap();
