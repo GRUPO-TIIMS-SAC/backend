@@ -9,7 +9,7 @@ export class NationalitiesService {
     constructor(
         @InjectRepository(Nationality)
         private readonly nationalityRepository: Repository<Nationality>
-    ) {}
+    ) { }
 
     async create(body: CreateUpdateNationality): Promise<Nationality> {
         const nationalityExist = await this.nationalityRepository.findOne({
@@ -18,7 +18,7 @@ export class NationalitiesService {
             }
         });
 
-        if(nationalityExist){
+        if (nationalityExist) {
             throw new HttpException('Nationality already exists', HttpStatus.CONFLICT);
         }
 
@@ -27,31 +27,31 @@ export class NationalitiesService {
     }
 
     async getAll(): Promise<Nationality[]> {
-        return this.nationalityRepository.find();
+        return this.nationalityRepository.find({ order: { nationality: 'ASC' } });
     }
 
-    async getOne(id:number): Promise<Nationality> {
+    async getOne(id: number): Promise<Nationality> {
         const exists = await this.nationalityRepository.findOne({
             where: {
                 id: id
             }
         });
 
-        if(!exists){
+        if (!exists) {
             throw new HttpException('Nationality not found', HttpStatus.NOT_FOUND);
         }
 
         return exists
     }
 
-    async update(id: number ,gender: CreateUpdateNationality): Promise<Nationality> {
+    async update(id: number, gender: CreateUpdateNationality): Promise<Nationality> {
         const nationalityFound = await this.nationalityRepository.findOne({
             where: {
                 id: id
             }
         });
 
-        if(!nationalityFound){
+        if (!nationalityFound) {
             throw new HttpException('Nationality not found', HttpStatus.NOT_FOUND);
         }
 
@@ -60,9 +60,9 @@ export class NationalitiesService {
     }
 
     async remove(id: number): Promise<void> {
-        const result = await this.nationalityRepository.delete({id});
+        const result = await this.nationalityRepository.delete({ id });
 
-        if(result.affected === 0){
+        if (result.affected === 0) {
             throw new HttpException('Nationality not found', HttpStatus.NOT_FOUND);
         }
 
