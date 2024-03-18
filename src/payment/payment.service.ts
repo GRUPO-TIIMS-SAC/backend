@@ -207,6 +207,16 @@ export class PaymentService {
 
             console.log(request_ids.getResponse()['data']);
 
+            if(request_ids.getResponse()['data'].length === 0){
+                return new HttpException(
+                    {
+                        message: 'Wallet',
+                        wallet: 0
+                    },
+                    HttpStatus.OK,
+                );
+            }
+
             const wallet = await this.paymentRepository.createQueryBuilder('payment')
                 .where('payment.request_id IN (:...ids)', { ids: request_ids.getResponse()['data'] })
                 .select('SUM(payment.amount)', 'sum')
