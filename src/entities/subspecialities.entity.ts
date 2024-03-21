@@ -18,4 +18,7 @@ export class SubSpeciality {
     @ManyToOne(() => Speciality, speciality => speciality.id)
     @JoinColumn({name: 'speciality_id'})
     speciality: Speciality;
+
+    @Column({type:'double', default: 0 ,nullable: false})
+    base_price: number;
 }
