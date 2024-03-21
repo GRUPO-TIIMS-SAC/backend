@@ -27,21 +27,21 @@ import { PaymentModule } from './payment/payment.module';
 import { LiveNotificationsModule } from './live_notifications/live_notifications.module';
 import { DocumentPoliticsModule } from './document_politics/document_politics.module';
 
+
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'tiims.com.pe',
+      host: process.env.DB_HOST,
       port: 3306,
-      username: 'tiimscom_cxg',
-      password: '(.,gR1G0RK)2308',
-      // database: 'tiimscom_db_test',
-      database: 'tiimscom_db_prod',
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
       timezone: 'America/Lima',
     }),
-    ConfigModule.forRoot(),
     UsersModule,
     AuthMethodsModule,
     TmpValidatedEmailModule,

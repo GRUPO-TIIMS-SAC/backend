@@ -34,6 +34,9 @@ export class Service {
     @Column({type: 'double', nullable: false})
     amount: number;
 
+    @Column({type: 'int', nullable: false, default: 0})
+    experience: number;
+
     @ManyToOne(() => User, user => user.id)
     @JoinColumn({name: 'user_id'})
     user: User;

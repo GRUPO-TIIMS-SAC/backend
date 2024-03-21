@@ -3,9 +3,12 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ExpressAdapter, NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { NestFactory } from '@nestjs/core';
+
 import * as admin from 'firebase-admin';
-import * as express from 'express';
-import { getConnection, getManager } from 'typeorm';
+import * as dotenv from 'dotenv';
+import * as express from 'express'; 
+
+dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -16,7 +19,7 @@ async function bootstrap() {
   app.use('/documents_upload', express.static(join(__dirname, '..', 'uploads', 'documents_upload')));
   app.use('/images_upload', express.static(join(__dirname, '..', 'uploads', 'images_upload')));
 
-  app.useStaticAssets(join(__dirname,'..','view'));
+  app.useStaticAssets(join(__dirname, '..', 'view'));
   app.setViewEngine('ejs');
 
   admin.initializeApp({
@@ -32,6 +35,7 @@ async function bootstrap() {
 
   SwaggerModule.setup('api/docs', app, document);
 
-  await app.listen(4001);
+  const port = process.env.PORT || 4000;
+  await app.listen(port);
 }
 bootstrap();
