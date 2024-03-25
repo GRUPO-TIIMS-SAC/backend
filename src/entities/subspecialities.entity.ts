@@ -21,4 +21,7 @@ export class SubSpeciality {
 
     @Column({type:'double', default: 0 ,nullable: false})
     base_price: number;
+
+    @Column({ type: 'boolean', default: false })
+    is_custom_service: boolean;    
 }
