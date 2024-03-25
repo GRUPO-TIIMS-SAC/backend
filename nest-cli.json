@@ -6,7 +6,8 @@
     "deleteOutDir": true,
     "plugins": ["@nestjs/swagger"],
     "assets": [
-      { "include": "views/**/*", "watchAssets": true }
+      { "include": "views/**/*", "watchAssets": true },
+      { "include": ".env", "watchAssets": true }
     ]
   }
 }

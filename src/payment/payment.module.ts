@@ -7,6 +7,7 @@ import { HttpModule } from '@nestjs/axios';
 import { UsersModule } from 'src/users/users.module';
 import { ProfilesModule } from 'src/profiles/profiles.module';
 import { RequestsModule } from 'src/requests/requests.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { RequestsModule } from 'src/requests/requests.module';
     HttpModule,
     UsersModule,
     RequestsModule,
+    ConfigModule,
     ProfilesModule],
   controllers: [PaymentController],
   providers: [PaymentService]
