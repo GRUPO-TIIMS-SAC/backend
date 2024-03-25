@@ -53,7 +53,7 @@ export class Request {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP'})
   updated_at: Date;
 
-  @Column({ length: 100, nullable: false })
+  @Column({ length: 150, nullable: false })
   address: string;
 
   @Column({ length: 50, nullable: false })
@@ -67,6 +67,9 @@ export class Request {
 
   @Column({ nullable: true })
   bill: boolean;
+
+  @Column({ length: 150, nullable: true })
+  reference: string;
 
   @ManyToOne(() => User, user => user.id)
   @JoinColumn({name: 'user_id'})
