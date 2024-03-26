@@ -71,6 +71,9 @@ export class Request {
   @Column({ length: 150, nullable: true })
   reference: string;
 
+  @Column({ length: 50, nullable: true })
+  place_name: string;
+
   @ManyToOne(() => User, user => user.id)
   @JoinColumn({name: 'user_id'})
   user: User;

@@ -6,4 +6,6 @@ export class CreateRequestDto {
     district: string;
     longitude: number;
     latitude: number;
+    reference?: string;
+    place_name?: string;
 }
