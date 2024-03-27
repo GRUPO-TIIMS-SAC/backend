@@ -3,4 +3,5 @@ export class UpdateProfileDto {
     own_description?: string;
     address?: string;
     phone?: string;
+    fcm?: string;
 }
