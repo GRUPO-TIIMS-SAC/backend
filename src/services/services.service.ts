@@ -100,9 +100,12 @@ export class ServicesService {
         return user;
       }
 
+      console.log(user.getResponse())
+
       const services = await this.serviceRepository.find({
         where: { user_id: user.getResponse()['data']['id'], subspeciality_id: subspeciality_id },
       });
+      console.log(services);
 
       if (!services || services.length === 0) {
         return new HttpException(
@@ -118,6 +121,12 @@ export class ServicesService {
               subspeciality_id: element.subspeciality_id,
               amount: element.amount,
               unit_id: element.unit_id,
+              experience: element.experience,
+              place_name: element.place_name,
+              reference: element.reference,
+              latitude: element.latitude,
+              longitude: element.longitude,
+              address: element.address,
             }
           }), message: 'Services found'
         },

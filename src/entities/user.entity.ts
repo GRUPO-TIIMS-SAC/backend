@@ -35,7 +35,4 @@ export class User {
 
   @Column({ type: 'timestamp', default: () => 'NOW()'})
   created_at: Date;
-
-  @Column({ length: 100, default: null })
-  fcm: string;
 }
